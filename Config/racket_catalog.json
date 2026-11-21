@@ -1,0 +1,2683 @@
+{
+  "_note": "Real brands and models are reference data only (trademarks; not for shipping without a licence). Specs as listed by the makers/retailers in \"source\". The game shows fictionalBrand/fictionalModel. Physics comes from these specs (Script/Racket.cs).",
+  "blades": [
+    {
+      "id": "butterfly-viscaria",
+      "brand": "Butterfly",
+      "model": "Viscaria",
+      "country": "Japan",
+      "plies": 7,
+      "construction": "5+2",
+      "composite": "Arylate Carbon",
+      "compositeLayer": "outer",
+      "outerPly": null,
+      "thicknessMm": 5.8,
+      "weightG": 86,
+      "speedClass": "OFF",
+      "handles": [
+        "FL",
+        "ST",
+        "CPEN"
+      ],
+      "source": "https://www.butterflyonline.com/butterfly-blade-specifications",
+      "fictionalBrand": "Kestrava",
+      "fictionalModel": "Strike 5+2 AC"
+    },
+    {
+      "id": "butterfly-innerforce-layer-alc",
+      "brand": "Butterfly",
+      "model": "Innerforce Layer ALC",
+      "country": "Japan",
+      "plies": 7,
+      "construction": "5+2",
+      "composite": "Arylate Carbon",
+      "compositeLayer": "inner",
+      "outerPly": null,
+      "thicknessMm": 6.0,
+      "weightG": 85,
+      "speedClass": "OFF",
+      "handles": [
+        "AN",
+        "FL",
+        "ST",
+        "CPEN"
+      ],
+      "source": "https://www.butterflyonline.com/butterfly-blade-specifications",
+      "fictionalBrand": "Kestrava",
+      "fictionalModel": "Strike 5+2 AC II"
+    },
+    {
+      "id": "butterfly-andrzej-grubba",
+      "brand": "Butterfly",
+      "model": "Andrzej Grubba",
+      "country": "Japan",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 5.7,
+      "weightG": 85,
+      "speedClass": "ALL",
+      "handles": [
+        "AN",
+        "FL",
+        "ST"
+      ],
+      "source": "https://www.butterflyonline.com/butterfly-blade-specifications",
+      "fictionalBrand": "Kestrava",
+      "fictionalModel": "Vale 5"
+    },
+    {
+      "id": "butterfly-diode-v",
+      "brand": "Butterfly",
+      "model": "Diode V",
+      "country": "Japan",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 5.7,
+      "weightG": 96,
+      "speedClass": "DEF",
+      "handles": [
+        "FL",
+        "ST"
+      ],
+      "source": "https://www.butterflyonline.com/butterfly-blade-specifications",
+      "fictionalBrand": "Kestrava",
+      "fictionalModel": "Bastion 5"
+    },
+    {
+      "id": "butterfly-cypress-g-max-s",
+      "brand": "Butterfly",
+      "model": "Cypress G-Max S",
+      "country": "Japan",
+      "plies": 1,
+      "construction": "1",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": "Kiso Hinoki",
+      "thicknessMm": 10.0,
+      "weightG": 89,
+      "speedClass": null,
+      "handles": [
+        "JPEN"
+      ],
+      "source": "https://www.butterflyonline.com/butterfly-blade-specifications",
+      "fictionalBrand": "Kestrava",
+      "fictionalModel": "Quill 1"
+    },
+    {
+      "id": "nittaku-acoustic",
+      "brand": "Nittaku",
+      "model": "Acoustic",
+      "country": "Japan",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 5.7,
+      "weightG": 85,
+      "speedClass": "OFF",
+      "handles": [
+        "FL",
+        "ST"
+      ],
+      "source": "https://donic.com/en/Nittaku-Acoustic/100836010",
+      "fictionalBrand": "Solvane",
+      "fictionalModel": "Strike 5"
+    },
+    {
+      "id": "nittaku-shake-defence",
+      "brand": "Nittaku",
+      "model": "Shake Defence",
+      "country": "Japan",
+      "plies": 5,
+      "construction": "3+2",
+      "composite": "Carbon",
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": null,
+      "weightG": 85,
+      "speedClass": "DEF",
+      "handles": [],
+      "source": "https://www.donic.com/en/NITTAKU-European-distribution/Blades/2888/Nittaku-Shake-Defence",
+      "fictionalBrand": "Solvane",
+      "fictionalModel": "Bastion 3+2 C"
+    },
+    {
+      "id": "nittaku-miyabi-r",
+      "brand": "Nittaku",
+      "model": "Miyabi R",
+      "country": "Japan",
+      "plies": 1,
+      "construction": "1",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": "Hinoki",
+      "thicknessMm": 8.8,
+      "weightG": 83,
+      "speedClass": "OFF+",
+      "handles": [
+        "JPEN"
+      ],
+      "source": "https://tabletennis11.com/en/nittaku-miyabi-r-pen",
+      "fictionalBrand": "Solvane",
+      "fictionalModel": "Quill 1"
+    },
+    {
+      "id": "nittaku-ap",
+      "brand": "Nittaku",
+      "model": "AP",
+      "country": "Japan",
+      "plies": 1,
+      "construction": "1",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": "Hinoki",
+      "thicknessMm": 9.0,
+      "weightG": 80,
+      "speedClass": "OFF+",
+      "handles": [
+        "JPEN"
+      ],
+      "source": "https://tabletennis11.com/en/nittaku-ap-j-pen",
+      "fictionalBrand": "Solvane",
+      "fictionalModel": "Quill 1 II"
+    },
+    {
+      "id": "yasaka-sweden-extra",
+      "brand": "Yasaka",
+      "model": "Sweden Extra",
+      "country": "Japan",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 5.7,
+      "weightG": 85,
+      "speedClass": null,
+      "handles": [
+        "FL",
+        "ST",
+        "AN"
+      ],
+      "source": "https://www.yasakatabletennis.com/products/sweden-extra",
+      "fictionalBrand": "Norrwick",
+      "fictionalModel": "Vale 5"
+    },
+    {
+      "id": "yasaka-sweden-defensive",
+      "brand": "Yasaka",
+      "model": "Sweden Defensive",
+      "country": "Japan",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 5.2,
+      "weightG": 84,
+      "speedClass": null,
+      "handles": [
+        "FL",
+        "ST"
+      ],
+      "source": "https://www.yasakatabletennis.com/products/sweden-defensive",
+      "fictionalBrand": "Norrwick",
+      "fictionalModel": "Vale 5 II"
+    },
+    {
+      "id": "yasaka-max-carbon-3d",
+      "brand": "Yasaka",
+      "model": "Max Carbon 3D",
+      "country": "Japan",
+      "plies": 9,
+      "construction": "7+2",
+      "composite": "Carbon",
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 6.3,
+      "weightG": 91,
+      "speedClass": null,
+      "handles": [
+        "FL",
+        "ST",
+        "AN"
+      ],
+      "source": "https://www.yasakatabletennis.com/products/max-carbon-3d",
+      "fictionalBrand": "Norrwick",
+      "fictionalModel": "Strike 7+2 C"
+    },
+    {
+      "id": "victas-koji-matsushita",
+      "brand": "Victas",
+      "model": "Koji Matsushita",
+      "country": "Japan",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 5.4,
+      "weightG": 87,
+      "speedClass": "DEF",
+      "handles": [
+        "FL",
+        "ST"
+      ],
+      "source": "https://victas.com/en_gb/products/detail.html?id=107",
+      "fictionalBrand": "Tessaro",
+      "fictionalModel": "Bastion 5"
+    },
+    {
+      "id": "victas-zx-gear-out",
+      "brand": "Victas",
+      "model": "ZX-Gear Out",
+      "country": "Japan",
+      "plies": null,
+      "construction": null,
+      "composite": "Zexion Carbon",
+      "compositeLayer": "outer",
+      "outerPly": null,
+      "thicknessMm": 5.9,
+      "weightG": 89,
+      "speedClass": "OFF+",
+      "handles": [
+        "FL",
+        "ST"
+      ],
+      "source": "https://victas.com/en_gb/products/detail.html?id=118",
+      "fictionalBrand": "Tessaro",
+      "fictionalModel": "Fury ZC"
+    },
+    {
+      "id": "victas-award-allround",
+      "brand": "Victas",
+      "model": "Award Allround",
+      "country": "Japan",
+      "plies": null,
+      "construction": null,
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 5.7,
+      "weightG": 85,
+      "speedClass": "ALL",
+      "handles": [
+        "FL",
+        "ST",
+        "AN"
+      ],
+      "source": "https://victas.com/en_gb/products/detail.html?id=120",
+      "fictionalBrand": "Tessaro",
+      "fictionalModel": "Vale"
+    },
+    {
+      "id": "darker-speed-90-hinoki-9mm",
+      "brand": "Darker",
+      "model": "Speed 90 Hinoki 9mm",
+      "country": "Japan",
+      "plies": 1,
+      "construction": "1",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": "Hinoki",
+      "thicknessMm": 9.0,
+      "weightG": null,
+      "speedClass": "OFF+",
+      "handles": [
+        "CPEN"
+      ],
+      "source": "https://tabletennis11.com/en/darker-speed-90-hinoki-9mm-ch-pen",
+      "fictionalBrand": "Ombrion",
+      "fictionalModel": "Quill 1"
+    },
+    {
+      "id": "darker-7p-2a-ri",
+      "brand": "Darker",
+      "model": "7P-2A.Ri",
+      "country": "Japan",
+      "plies": 7,
+      "construction": "7",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 6.5,
+      "weightG": null,
+      "speedClass": "OFF",
+      "handles": [
+        "FL",
+        "ST"
+      ],
+      "source": "https://tabletennis11.com/en/darker-hinoki-7p-2a-ri",
+      "fictionalBrand": "Ombrion",
+      "fictionalModel": "Strike 7"
+    },
+    {
+      "id": "juic-titanium-pen-off",
+      "brand": "Juic",
+      "model": "Titanium Pen OFF",
+      "country": "Japan",
+      "plies": 7,
+      "construction": "5+2",
+      "composite": "Titanium mesh",
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 6.4,
+      "weightG": 69,
+      "speedClass": "OFF-",
+      "handles": [
+        "JPEN"
+      ],
+      "source": "https://www.juic.co.jp/view/item/000000000107",
+      "fictionalBrand": "Pulvia",
+      "fictionalModel": "Quill 5+2 TM"
+    },
+    {
+      "id": "juic-matador",
+      "brand": "Juic",
+      "model": "Matador",
+      "country": "Japan",
+      "plies": 7,
+      "construction": "7",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 6.0,
+      "weightG": 88,
+      "speedClass": "OFF-",
+      "handles": [
+        "FL",
+        "ST"
+      ],
+      "source": "https://www.juic.co.jp/view/item/000000000146",
+      "fictionalBrand": "Pulvia",
+      "fictionalModel": "Arc 7"
+    },
+    {
+      "id": "juic-tenam",
+      "brand": "Juic",
+      "model": "Tenam",
+      "country": "Japan",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 6.2,
+      "weightG": 74,
+      "speedClass": "ALL",
+      "handles": [
+        "FL"
+      ],
+      "source": "https://www.juic.co.jp/view/item/000000000626",
+      "fictionalBrand": "Pulvia",
+      "fictionalModel": "Vale 5"
+    },
+    {
+      "id": "mizuno-fortius-ft-ver-d",
+      "brand": "Mizuno",
+      "model": "Fortius FT ver.D",
+      "country": "Japan",
+      "plies": 9,
+      "construction": "7+2",
+      "composite": "DUAL WEB",
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 6.4,
+      "weightG": 90,
+      "speedClass": null,
+      "handles": [
+        "FL",
+        "ST"
+      ],
+      "source": "https://jpn.mizuno.com/ec/g/g83GTT70109FL/",
+      "fictionalBrand": "Riverin",
+      "fictionalModel": "Strike 7+2 DW"
+    },
+    {
+      "id": "mizuno-fortius-ft5",
+      "brand": "Mizuno",
+      "model": "Fortius FT5",
+      "country": "Japan",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 6.6,
+      "weightG": 85,
+      "speedClass": null,
+      "handles": [
+        "FL",
+        "ST"
+      ],
+      "source": "https://jpn.mizuno.com/ec/g/g83GTT60554FL/",
+      "fictionalBrand": "Riverin",
+      "fictionalModel": "Vale 5"
+    },
+    {
+      "id": "dhs-hurricane-long-5",
+      "brand": "DHS",
+      "model": "Hurricane Long 5",
+      "country": "China",
+      "plies": 7,
+      "construction": "5+2",
+      "composite": "Arylate Carbon",
+      "compositeLayer": "inner",
+      "outerPly": null,
+      "thicknessMm": 5.9,
+      "weightG": 89,
+      "speedClass": "OFF",
+      "handles": [
+        "FL"
+      ],
+      "source": "https://www.shopnings.com/dhs-hurricane-long-5-table-tennis-blade/",
+      "fictionalBrand": "Qilaro",
+      "fictionalModel": "Strike 5+2 AC"
+    },
+    {
+      "id": "dhs-hurricane-301-ch-pen",
+      "brand": "DHS",
+      "model": "Hurricane 301 Ch.Pen",
+      "country": "China",
+      "plies": 7,
+      "construction": "5+2",
+      "composite": "Carbon",
+      "compositeLayer": "inner",
+      "outerPly": null,
+      "thicknessMm": 5.8,
+      "weightG": 86,
+      "speedClass": "OFF",
+      "handles": [
+        "CPEN"
+      ],
+      "source": "https://tabletennis11.com/en/dhs-hurricane-301-ch-pen",
+      "fictionalBrand": "Qilaro",
+      "fictionalModel": "Quill 5+2 C"
+    },
+    {
+      "id": "dhs-hurricane-hao-3",
+      "brand": "DHS",
+      "model": "Hurricane Hao 3",
+      "country": "China",
+      "plies": 5,
+      "construction": "2+GC+2",
+      "composite": "Glass Carbon",
+      "compositeLayer": "inner",
+      "outerPly": null,
+      "thicknessMm": 5.8,
+      "weightG": 86,
+      "speedClass": null,
+      "handles": [
+        "CPEN",
+        "FL"
+      ],
+      "source": "https://www.shopnings.com/dhs-hurricane-hao-3-table-tennis-blade/",
+      "fictionalBrand": "Qilaro",
+      "fictionalModel": "Strike 2+GC+2 GC"
+    },
+    {
+      "id": "dhs-magic-d03",
+      "brand": "DHS",
+      "model": "Magic D03",
+      "country": "China",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 6.0,
+      "weightG": 83,
+      "speedClass": "DEF",
+      "handles": [
+        "FL"
+      ],
+      "source": "https://www.shopnings.com/dhs-double-happiness-magic-d03-table-tennis-chop-shakehand-blade/",
+      "fictionalBrand": "Qilaro",
+      "fictionalModel": "Bastion 5"
+    },
+    {
+      "id": "sanwei-froster",
+      "brand": "Sanwei",
+      "model": "Froster",
+      "country": "China",
+      "plies": 7,
+      "construction": "5+2",
+      "composite": "Arylate Carbon",
+      "compositeLayer": "outer",
+      "outerPly": "Koto",
+      "thicknessMm": 5.9,
+      "weightG": 85,
+      "speedClass": "OFF+",
+      "handles": [
+        "FL",
+        "ST",
+        "AN",
+        "CPEN"
+      ],
+      "source": "https://sanweisport.com/en/product/blade/expert-carbon/froster/",
+      "fictionalBrand": "Sylvar",
+      "fictionalModel": "Fury 5+2 AC"
+    },
+    {
+      "id": "sanwei-echo",
+      "brand": "Sanwei",
+      "model": "Echo",
+      "country": "China",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": "Limba",
+      "thicknessMm": 5.9,
+      "weightG": 80,
+      "speedClass": "ALL",
+      "handles": [
+        "FL",
+        "ST",
+        "CPEN"
+      ],
+      "source": "https://sanweisport.com/en/product/blade/trio-series/one-of-the-best-5-ply-blade-echo/",
+      "fictionalBrand": "Sylvar",
+      "fictionalModel": "Vale 5"
+    },
+    {
+      "id": "sanwei-defense-alpha",
+      "brand": "Sanwei",
+      "model": "Defense Alpha",
+      "country": "China",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": "Limba",
+      "thicknessMm": 6.0,
+      "weightG": 105,
+      "speedClass": "DEF",
+      "handles": [
+        "FL",
+        "ST"
+      ],
+      "source": "https://sanweisport.com/en/product/blade/defense/defense-alpha/",
+      "fictionalBrand": "Sylvar",
+      "fictionalModel": "Bastion 5"
+    },
+    {
+      "id": "yinhe-pro-01",
+      "brand": "Yinhe",
+      "model": "Pro-01",
+      "country": "China",
+      "plies": 7,
+      "construction": "5+2",
+      "composite": "Arylate Carbon",
+      "compositeLayer": null,
+      "outerPly": "Koto",
+      "thicknessMm": 5.7,
+      "weightG": 90,
+      "speedClass": "OFF+",
+      "handles": [
+        "FL"
+      ],
+      "source": "https://www.shopnings.com/yinhe-pro-01-alc-table-tennis-blade/",
+      "fictionalBrand": "Corvessa",
+      "fictionalModel": "Fury 5+2 AC"
+    },
+    {
+      "id": "yinhe-v-14-pro",
+      "brand": "Yinhe",
+      "model": "V-14 PRO",
+      "country": "China",
+      "plies": 7,
+      "construction": "5+2",
+      "composite": "Arylate Carbon",
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 5.9,
+      "weightG": 87,
+      "speedClass": "OFF+",
+      "handles": [],
+      "source": "https://tabletennis11.com/en/yinhe-v-14-pro",
+      "fictionalBrand": "Corvessa",
+      "fictionalModel": "Fury 5+2 AC II"
+    },
+    {
+      "id": "yinhe-t-11s",
+      "brand": "Yinhe",
+      "model": "T-11s",
+      "country": "China",
+      "plies": 7,
+      "construction": "5+2",
+      "composite": "Carbon",
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 7.0,
+      "weightG": 75,
+      "speedClass": "OFF",
+      "handles": [],
+      "source": "https://tabletennis11.com/en/yinhe-t-11s",
+      "fictionalBrand": "Corvessa",
+      "fictionalModel": "Strike 5+2 C"
+    },
+    {
+      "id": "double-fish-project-z",
+      "brand": "Double Fish",
+      "model": "Project Z",
+      "country": "China",
+      "plies": 7,
+      "construction": "5+2",
+      "composite": "Arylate Carbon",
+      "compositeLayer": "outer",
+      "outerPly": "Koto",
+      "thicknessMm": 5.9,
+      "weightG": null,
+      "speedClass": "OFF+",
+      "handles": [
+        "FL"
+      ],
+      "source": "https://www.shopnings.com/double-fish-project-z-zhou-qihao-alc-blade/",
+      "fictionalBrand": "Talvio",
+      "fictionalModel": "Fury 5+2 AC"
+    },
+    {
+      "id": "loki-violent-v9-ebony-carbon",
+      "brand": "Loki",
+      "model": "Violent V9 Ebony Carbon",
+      "country": "China",
+      "plies": 9,
+      "construction": "7+2",
+      "composite": "Aramid Carbon",
+      "compositeLayer": null,
+      "outerPly": "Ebony",
+      "thicknessMm": 6.05,
+      "weightG": 91,
+      "speedClass": "OFF+",
+      "handles": [
+        "FL",
+        "CPEN"
+      ],
+      "source": "https://www.shopnings.com/loki-violent-v9-ebony-carbon-table-tennis-blade/",
+      "fictionalBrand": "Vendrel",
+      "fictionalModel": "Fury 7+2 AC"
+    },
+    {
+      "id": "loki-liang-jingkun-alc",
+      "brand": "Loki",
+      "model": "Liang Jingkun ALC",
+      "country": "China",
+      "plies": 7,
+      "construction": "5+2",
+      "composite": "Arylate Carbon",
+      "compositeLayer": "outer",
+      "outerPly": "Koto",
+      "thicknessMm": 5.75,
+      "weightG": null,
+      "speedClass": "OFF+",
+      "handles": [
+        "FL"
+      ],
+      "source": "https://www.shopnings.com/loki-liang-jingkun-alc-table-tennis-blade/",
+      "fictionalBrand": "Vendrel",
+      "fictionalModel": "Fury 5+2 AC"
+    },
+    {
+      "id": "loki-liang-jingkun-adc",
+      "brand": "Loki",
+      "model": "Liang Jingkun ADC",
+      "country": "China",
+      "plies": 7,
+      "construction": "5+2",
+      "composite": "Aramid Carbon",
+      "compositeLayer": "inner",
+      "outerPly": "Limba",
+      "thicknessMm": 6.0,
+      "weightG": 92,
+      "speedClass": "OFF+",
+      "handles": [
+        "FL"
+      ],
+      "source": "https://www.shopnings.com/loki-liang-jingkun-adc-table-tennis-blade/",
+      "fictionalBrand": "Vendrel",
+      "fictionalModel": "Fury 5+2 AC II"
+    },
+    {
+      "id": "avalox-p700",
+      "brand": "Avalox",
+      "model": "P700",
+      "country": "Taiwan",
+      "plies": 7,
+      "construction": "7",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 6.2,
+      "weightG": 90,
+      "speedClass": "OFF+",
+      "handles": [],
+      "source": "https://tabletennis11.com/en/avalox-p700",
+      "fictionalBrand": "Taloran",
+      "fictionalModel": "Fury 7"
+    },
+    {
+      "id": "avalox-p500",
+      "brand": "Avalox",
+      "model": "P500",
+      "country": "Taiwan",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 5.8,
+      "weightG": 90,
+      "speedClass": "OFF",
+      "handles": [],
+      "source": "https://tabletennis11.com/en/avalox-p500",
+      "fictionalBrand": "Taloran",
+      "fictionalModel": "Strike 5"
+    },
+    {
+      "id": "donic-defplay-senso",
+      "brand": "Donic",
+      "model": "Defplay Senso",
+      "country": "Germany",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": "Anegre",
+      "thicknessMm": null,
+      "weightG": null,
+      "speedClass": "DEF",
+      "handles": [
+        "FL",
+        "ST",
+        "AN"
+      ],
+      "source": "https://www.donic.com/en/DONIC-DEFPLAY-SENSO/100212010",
+      "fictionalBrand": "Castrel",
+      "fictionalModel": "Bastion 5"
+    },
+    {
+      "id": "donic-defplay-inner-carbon",
+      "brand": "Donic",
+      "model": "Defplay Inner Carbon",
+      "country": "Germany",
+      "plies": 7,
+      "construction": "5+2",
+      "composite": "Hyramid Carbon",
+      "compositeLayer": "inner",
+      "outerPly": "Limba",
+      "thicknessMm": null,
+      "weightG": 85,
+      "speedClass": "DEF",
+      "handles": [
+        "FL",
+        "ST"
+      ],
+      "source": "https://www.donic.com/en/DONIC-DEFPLAY-INNER-CARBON/110257010",
+      "fictionalBrand": "Castrel",
+      "fictionalModel": "Bastion 5+2 HC"
+    },
+    {
+      "id": "donic-waldner-allplay",
+      "brand": "Donic",
+      "model": "Waldner Allplay",
+      "country": "Germany",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": "Limba",
+      "thicknessMm": null,
+      "weightG": 85,
+      "speedClass": "ALL",
+      "handles": [
+        "FL",
+        "ST",
+        "AN"
+      ],
+      "source": "https://www.donic.com/en/DONIC-WALDNER-ALLPLAY/100218010",
+      "fictionalBrand": "Castrel",
+      "fictionalModel": "Vale 5"
+    },
+    {
+      "id": "donic-appelgren-allplay",
+      "brand": "Donic",
+      "model": "Appelgren Allplay",
+      "country": "Germany",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": "Limba",
+      "thicknessMm": null,
+      "weightG": 85,
+      "speedClass": "ALL",
+      "handles": [
+        "FL",
+        "ST",
+        "AN"
+      ],
+      "source": "https://www.donic.com/en/DONIC-APPELGREN-ALLPLAY/100201010",
+      "fictionalBrand": "Castrel",
+      "fictionalModel": "Vale 5 II"
+    },
+    {
+      "id": "tibhar-defense-plus",
+      "brand": "Tibhar",
+      "model": "Defense Plus",
+      "country": "Germany",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": null,
+      "weightG": 75,
+      "speedClass": "DEF",
+      "handles": [
+        "FL",
+        "ST"
+      ],
+      "source": "https://tibhar.info/en/shop/defense-plus/",
+      "fictionalBrand": "Ivarro",
+      "fictionalModel": "Bastion 5"
+    },
+    {
+      "id": "tibhar-balsa-def-25",
+      "brand": "Tibhar",
+      "model": "Balsa Def 25",
+      "country": "Germany",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": null,
+      "weightG": 77.5,
+      "speedClass": "DEF",
+      "handles": [
+        "FL",
+        "ST",
+        "AN"
+      ],
+      "source": "https://tibhar.info/en/shop/balsa-def-25/",
+      "fictionalBrand": "Ivarro",
+      "fictionalModel": "Bastion 5 II"
+    },
+    {
+      "id": "tibhar-allround-classic",
+      "brand": "Tibhar",
+      "model": "Allround Classic",
+      "country": "Germany",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": null,
+      "weightG": 85,
+      "speedClass": "ALL",
+      "handles": [
+        "FL",
+        "ST",
+        "AN"
+      ],
+      "source": "https://tibhar.info/en/shop/allround-classic/",
+      "fictionalBrand": "Ivarro",
+      "fictionalModel": "Vale 5"
+    },
+    {
+      "id": "tibhar-samsonov-force-pro",
+      "brand": "Tibhar",
+      "model": "Samsonov Force Pro",
+      "country": "Germany",
+      "plies": 7,
+      "construction": "7",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": "Limba",
+      "thicknessMm": null,
+      "weightG": 85,
+      "speedClass": "OFF",
+      "handles": [
+        "FL",
+        "ST",
+        "AN"
+      ],
+      "source": "https://tibhar.info/en/shop/samsonov-force-pro/",
+      "fictionalBrand": "Ivarro",
+      "fictionalModel": "Strike 7"
+    },
+    {
+      "id": "stiga-allround-classic",
+      "brand": "Stiga",
+      "model": "Allround Classic",
+      "country": "Sweden",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": "Limba",
+      "thicknessMm": null,
+      "weightG": 80,
+      "speedClass": "ALL",
+      "handles": [
+        "FL",
+        "ST",
+        "CPEN"
+      ],
+      "source": "https://www.stigasports.com/en/product/allround-classic",
+      "fictionalBrand": "Nordhal",
+      "fictionalModel": "Vale 5"
+    },
+    {
+      "id": "stiga-defensive-classic-ii",
+      "brand": "Stiga",
+      "model": "Defensive Classic II",
+      "country": "Sweden",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": "Limba",
+      "thicknessMm": null,
+      "weightG": 90,
+      "speedClass": "DEF",
+      "handles": [
+        "FL",
+        "ST"
+      ],
+      "source": "https://www.stigasports.com/en/product/defensive-classic-ii",
+      "fictionalBrand": "Nordhal",
+      "fictionalModel": "Bastion 5"
+    },
+    {
+      "id": "stiga-clipper-wood",
+      "brand": "Stiga",
+      "model": "Clipper Wood",
+      "country": "Sweden",
+      "plies": 7,
+      "construction": "7",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": "Limba",
+      "thicknessMm": null,
+      "weightG": 87.5,
+      "speedClass": "OFF",
+      "handles": [
+        "FL",
+        "ST"
+      ],
+      "source": "https://www.stigasports.com/en/product/clipper-wood",
+      "fictionalBrand": "Nordhal",
+      "fictionalModel": "Strike 7"
+    },
+    {
+      "id": "andro-timber-5-def",
+      "brand": "Andro",
+      "model": "Timber 5 DEF",
+      "country": "Germany",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 4.9,
+      "weightG": 80,
+      "speedClass": "DEF",
+      "handles": [
+        "ST",
+        "FL"
+      ],
+      "source": "https://www.andro.de/en/timber-5-def",
+      "fictionalBrand": "Quintar",
+      "fictionalModel": "Bastion 5"
+    },
+    {
+      "id": "andro-timber-5-all",
+      "brand": "Andro",
+      "model": "Timber 5 ALL",
+      "country": "Germany",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 5.8,
+      "weightG": 83,
+      "speedClass": "ALL",
+      "handles": [
+        "ST",
+        "FL",
+        "AN"
+      ],
+      "source": "https://www.andro.de/en/timber-5-all",
+      "fictionalBrand": "Quintar",
+      "fictionalModel": "Vale 5"
+    },
+    {
+      "id": "andro-tp-ligna-all",
+      "brand": "Andro",
+      "model": "TP_Ligna ALL",
+      "country": "Germany",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 5.7,
+      "weightG": 75,
+      "speedClass": "ALL",
+      "handles": [
+        "ST",
+        "FL"
+      ],
+      "source": "https://www.andro.de/en/tpligna-all",
+      "fictionalBrand": "Quintar",
+      "fictionalModel": "Vale 5 II"
+    },
+    {
+      "id": "andro-treiber-ci-off",
+      "brand": "Andro",
+      "model": "Treiber CI OFF",
+      "country": "Germany",
+      "plies": 7,
+      "construction": "5+2",
+      "composite": "KVL Carbon",
+      "compositeLayer": "inner",
+      "outerPly": null,
+      "thicknessMm": 6.1,
+      "weightG": 90,
+      "speedClass": "OFF",
+      "handles": [
+        "ST",
+        "FL",
+        "AN"
+      ],
+      "source": "https://www.andro.de/en/treiber-ci",
+      "fictionalBrand": "Quintar",
+      "fictionalModel": "Strike 5+2 KC"
+    },
+    {
+      "id": "gewo-velox-alpha-def",
+      "brand": "Gewo",
+      "model": "Velox alpha Def",
+      "country": "Germany",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": null,
+      "weightG": 85,
+      "speedClass": "DEF",
+      "handles": [],
+      "source": "https://www.gewo-tt.com/GEWO-Holz-Velox-alpha-Def/4419",
+      "fictionalBrand": "Ferrano",
+      "fictionalModel": "Bastion 5"
+    },
+    {
+      "id": "gewo-allround-classic",
+      "brand": "Gewo",
+      "model": "Allround Classic",
+      "country": "Germany",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": null,
+      "weightG": 80,
+      "speedClass": "ALL+",
+      "handles": [],
+      "source": "https://www.gewo-tt.com/GEWO-Holz-Allround-Classic/7674",
+      "fictionalBrand": "Ferrano",
+      "fictionalModel": "Ridge 5"
+    },
+    {
+      "id": "gewo-aruna-carbon-all",
+      "brand": "Gewo",
+      "model": "Aruna Carbon ALL+",
+      "country": "Germany",
+      "plies": 7,
+      "construction": "5+2",
+      "composite": "Carbon",
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": null,
+      "weightG": 89,
+      "speedClass": "ALL+",
+      "handles": [],
+      "source": "https://www.gewo-tt.com/GEWO-Holz-Aruna-Carbon-ALL/9451",
+      "fictionalBrand": "Ferrano",
+      "fictionalModel": "Ridge 5+2 C"
+    },
+    {
+      "id": "joola-chen-weixing-cwx",
+      "brand": "Joola",
+      "model": "Chen Weixing (CWX)",
+      "country": "Germany",
+      "plies": 7,
+      "construction": "5+2",
+      "composite": "Black-Cloth",
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 5.7,
+      "weightG": 88,
+      "speedClass": "DEF",
+      "handles": [],
+      "source": "https://tabletennis11.com/en/joola-chen-weixing",
+      "fictionalBrand": "Zelvan",
+      "fictionalModel": "Bastion 5+2 BC"
+    },
+    {
+      "id": "dr-neubauer-barricade-def",
+      "brand": "Dr. Neubauer",
+      "model": "Barricade DEF",
+      "country": "Germany",
+      "plies": 7,
+      "construction": "7",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": null,
+      "weightG": null,
+      "speedClass": "DEF",
+      "handles": [
+        "FL",
+        "ST",
+        "AN"
+      ],
+      "source": "https://www.drneubauer.de/shop.php?cat=2&cat_s=0&lang=us&prod=30",
+      "fictionalBrand": "Mirsk",
+      "fictionalModel": "Bastion 7"
+    },
+    {
+      "id": "der-materialspezialist-magic-defence",
+      "brand": "Der Materialspezialist",
+      "model": "Magic Defence",
+      "country": "Germany",
+      "plies": 7,
+      "construction": "7",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": "Abachi",
+      "thicknessMm": 6.3,
+      "weightG": 87,
+      "speedClass": "DEF",
+      "handles": [
+        "FL",
+        "ST"
+      ],
+      "source": "https://www.der-materialspezialist.com/Hoelzer/der-materialspezialist/Defensiv/MAGIC-DEFENCE::228.html",
+      "fictionalBrand": "Verrisk",
+      "fictionalModel": "Bastion 7"
+    },
+    {
+      "id": "xiom-aigis",
+      "brand": "Xiom",
+      "model": "Aigis",
+      "country": "Korea",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": "Limba",
+      "thicknessMm": 5.5,
+      "weightG": 83,
+      "speedClass": "DEF",
+      "handles": [],
+      "source": "https://www.xiom.eu/aigis",
+      "fictionalBrand": "Kairon",
+      "fictionalModel": "Bastion 5"
+    },
+    {
+      "id": "xiom-allround",
+      "brand": "Xiom",
+      "model": "Allround",
+      "country": "Korea",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": "Limba",
+      "thicknessMm": 5.4,
+      "weightG": 80,
+      "speedClass": "ALL+",
+      "handles": [],
+      "source": "https://www.xiom.eu/allround",
+      "fictionalBrand": "Kairon",
+      "fictionalModel": "Ridge 5"
+    },
+    {
+      "id": "xiom-stradivarius",
+      "brand": "Xiom",
+      "model": "Stradivarius",
+      "country": "Korea",
+      "plies": 7,
+      "construction": "5+2",
+      "composite": "Aramid Carbon",
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 5.7,
+      "weightG": 87,
+      "speedClass": "OFF",
+      "handles": [],
+      "source": "https://www.xiom.eu/stradivarius",
+      "fictionalBrand": "Kairon",
+      "fictionalModel": "Strike 5+2 AC"
+    },
+    {
+      "id": "nexy-joo-sae-hyuk",
+      "brand": "Nexy",
+      "model": "Joo Sae Hyuk",
+      "country": "Korea",
+      "plies": 7,
+      "construction": "7",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": null,
+      "thicknessMm": 6.3,
+      "weightG": 90,
+      "speedClass": "ALL+",
+      "handles": [],
+      "source": "https://tabletennis11.com/en/nexy-joo-sae-hyuk",
+      "fictionalBrand": "Velstra",
+      "fictionalModel": "Ridge 7"
+    },
+    {
+      "id": "nexy-focala",
+      "brand": "Nexy",
+      "model": "Focala",
+      "country": "Korea",
+      "plies": 7,
+      "construction": "5+2",
+      "composite": "Arylate Carbon",
+      "compositeLayer": "outer",
+      "outerPly": "Koto",
+      "thicknessMm": 5.8,
+      "weightG": null,
+      "speedClass": "OFF",
+      "handles": [
+        "FL",
+        "ST"
+      ],
+      "source": "https://www.tak9.com/goods/goods_view.php?goodsNo=1000001085",
+      "fictionalBrand": "Velstra",
+      "fictionalModel": "Strike 5+2 AC"
+    },
+    {
+      "id": "cornilleau-hinotec-off-carbon",
+      "brand": "Cornilleau",
+      "model": "Hinotec OFF+ Carbon",
+      "country": "France",
+      "plies": 5,
+      "construction": "3+2",
+      "composite": "Carbon",
+      "compositeLayer": null,
+      "outerPly": "Hinoki",
+      "thicknessMm": 6.2,
+      "weightG": 85,
+      "speedClass": "OFF+",
+      "handles": [
+        "FL"
+      ],
+      "source": "https://us.cornilleau.com/blades/262-342-hinotec-off-carbon.html",
+      "fictionalBrand": "Belcour",
+      "fictionalModel": "Fury 3+2 C"
+    },
+    {
+      "id": "cornilleau-hinotec-off",
+      "brand": "Cornilleau",
+      "model": "Hinotec OFF",
+      "country": "France",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": "Hinoki",
+      "thicknessMm": 6.0,
+      "weightG": 85,
+      "speedClass": "OFF",
+      "handles": [
+        "FL"
+      ],
+      "source": "https://us.cornilleau.com/blades/263-343-hinotec-off.html",
+      "fictionalBrand": "Belcour",
+      "fictionalModel": "Strike 5"
+    },
+    {
+      "id": "cornilleau-aero-all",
+      "brand": "Cornilleau",
+      "model": "Aero ALL",
+      "country": "France",
+      "plies": 5,
+      "construction": "5",
+      "composite": null,
+      "compositeLayer": null,
+      "outerPly": "Fineline",
+      "thicknessMm": 5.4,
+      "weightG": 70,
+      "speedClass": "ALL",
+      "handles": [
+        "FL"
+      ],
+      "source": "https://us.cornilleau.com/blades/270-350-aero-all.html",
+      "fictionalBrand": "Belcour",
+      "fictionalModel": "Vale 5"
+    }
+  ],
+  "rubbers": [
+    {
+      "id": "butterfly-tenergy-05",
+      "brand": "Butterfly",
+      "model": "Tenergy 05",
+      "type": "inverted-tensor",
+      "hardness": 36,
+      "hardnessScale": "JP",
+      "thicknessesMm": [
+        1.7,
+        1.9,
+        2.1
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.butterfly-global.com/en/products/detail/05800.html",
+      "fictionalBrand": "Kestrava",
+      "fictionalModel": "Surge 48"
+    },
+    {
+      "id": "butterfly-dignics-09c",
+      "brand": "Butterfly",
+      "model": "Dignics 09C",
+      "type": "inverted-tensor",
+      "hardness": 44,
+      "hardnessScale": "JP",
+      "thicknessesMm": [
+        1.9,
+        2.1
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.butterfly-global.com/en/products/detail/06070.html",
+      "fictionalBrand": "Kestrava",
+      "fictionalModel": "Surge 56"
+    },
+    {
+      "id": "butterfly-sriver",
+      "brand": "Butterfly",
+      "model": "Sriver",
+      "type": "inverted-classic",
+      "hardness": 38,
+      "hardnessScale": "JP",
+      "thicknessesMm": [
+        1.7,
+        1.9,
+        2.1
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.butterfly-global.com/en/products/detail/05050.html",
+      "fictionalBrand": "Kestrava",
+      "fictionalModel": "Draw 50"
+    },
+    {
+      "id": "butterfly-tackiness-chop",
+      "brand": "Butterfly",
+      "model": "Tackiness Chop",
+      "type": "inverted-tacky",
+      "hardness": 32,
+      "hardnessScale": "JP",
+      "thicknessesMm": [
+        1.3,
+        1.7,
+        1.9
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.butterfly-global.com/en/products/detail/05450.html",
+      "fictionalBrand": "Kestrava",
+      "fictionalModel": "Talon 44"
+    },
+    {
+      "id": "butterfly-feint-long-iii",
+      "brand": "Butterfly",
+      "model": "Feint Long III",
+      "type": "long-pips",
+      "hardness": 25,
+      "hardnessScale": "JP",
+      "thicknessesMm": [
+        0,
+        0.5,
+        1.1,
+        1.3
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.butterfly-global.com/en/products/detail/00320.html",
+      "fictionalBrand": "Kestrava",
+      "fictionalModel": "Thorn 36"
+    },
+    {
+      "id": "nittaku-fastarc-g-1",
+      "brand": "Nittaku",
+      "model": "Fastarc G-1",
+      "type": "inverted-tensor",
+      "hardness": 37.5,
+      "hardnessScale": "JP",
+      "thicknessesMm": [
+        1.55,
+        1.8,
+        2.0,
+        2.1
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://anamall.ana.co.jp/shop/g/g0189-94419/",
+      "fictionalBrand": "Solvane",
+      "fictionalModel": "Surge 49"
+    },
+    {
+      "id": "nittaku-moristo-sp",
+      "brand": "Nittaku",
+      "model": "Moristo SP",
+      "type": "short-pips",
+      "hardness": 30,
+      "hardnessScale": "JP",
+      "thicknessesMm": [
+        1.55,
+        1.8,
+        2.0,
+        2.1
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://anamall.ana.co.jp/shop/g/g0189-16154/",
+      "fictionalBrand": "Solvane",
+      "fictionalModel": "Stud 42"
+    },
+    {
+      "id": "nittaku-best-anti",
+      "brand": "Nittaku",
+      "model": "Best Anti",
+      "type": "anti",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        1.3,
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.donic.com/en/Nittaku-Best-Anti/000824113",
+      "fictionalBrand": "Solvane",
+      "fictionalModel": "Hush"
+    },
+    {
+      "id": "yasaka-mark-v",
+      "brand": "Yasaka",
+      "model": "Mark V",
+      "type": "inverted-classic",
+      "hardness": 42.5,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [
+        1.0,
+        1.5,
+        1.8,
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.yasakatabletennis.com/products/mark-v-3",
+      "fictionalBrand": "Norrwick",
+      "fictionalModel": "Draw 42"
+    },
+    {
+      "id": "yasaka-rakza-7",
+      "brand": "Yasaka",
+      "model": "Rakza 7",
+      "type": "inverted-tensor",
+      "hardness": 45,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [
+        1.8,
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.yasakatabletennis.com/products/rakza-7",
+      "fictionalBrand": "Norrwick",
+      "fictionalModel": "Surge 45"
+    },
+    {
+      "id": "victas-v-15-extra",
+      "brand": "Victas",
+      "model": "V>15 Extra",
+      "type": "inverted-tensor",
+      "hardness": 47.5,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black",
+        "blue"
+      ],
+      "source": "https://victas.com/en_gb/products/detail.html?id=9",
+      "fictionalBrand": "Tessaro",
+      "fictionalModel": "Surge 48"
+    },
+    {
+      "id": "victas-curl-p1v",
+      "brand": "Victas",
+      "model": "Curl P1V",
+      "type": "long-pips",
+      "hardness": 55,
+      "hardnessScale": "other",
+      "thicknessesMm": [
+        0,
+        0.5,
+        1.0,
+        1.5
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://victas.com/en_gb/products/detail.html?id=40",
+      "fictionalBrand": "Tessaro",
+      "fictionalModel": "Thorn 55"
+    },
+    {
+      "id": "victas-spectol-s1",
+      "brand": "Victas",
+      "model": "Spectol S1",
+      "type": "short-pips",
+      "hardness": 35,
+      "hardnessScale": "other",
+      "thicknessesMm": [
+        1.3,
+        1.6,
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black",
+        "blue"
+      ],
+      "source": "https://victas.com/en_gb/products/detail.html?id=37",
+      "fictionalBrand": "Tessaro",
+      "fictionalModel": "Stud 35"
+    },
+    {
+      "id": "juic-killer-pro",
+      "brand": "Juic",
+      "model": "Killer Pro",
+      "type": "short-pips",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        1.3,
+        1.5,
+        1.8,
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.juic.co.jp/view/item/000000000060",
+      "fictionalBrand": "Pulvia",
+      "fictionalModel": "Stud"
+    },
+    {
+      "id": "mizuno-q3",
+      "brand": "Mizuno",
+      "model": "Q3",
+      "type": "inverted-tensor",
+      "hardness": 47,
+      "hardnessScale": "other",
+      "thicknessesMm": [
+        1.7,
+        1.9,
+        2.1
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://jpn.mizuno.com/ec/g/g83JRT8930917/",
+      "fictionalBrand": "Riverin",
+      "fictionalModel": "Surge 47"
+    },
+    {
+      "id": "mizuno-unison-plus",
+      "brand": "Mizuno",
+      "model": "Unison Plus",
+      "type": "inverted-classic",
+      "hardness": 42,
+      "hardnessScale": "other",
+      "thicknessesMm": [
+        1.7,
+        1.9,
+        2.1
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://jpn.mizuno.com/ec/g/g83JRT2010917/",
+      "fictionalBrand": "Riverin",
+      "fictionalModel": "Draw 42"
+    },
+    {
+      "id": "dhs-neo-hurricane-3",
+      "brand": "DHS",
+      "model": "NEO Hurricane 3",
+      "type": "inverted-tacky",
+      "hardness": 39,
+      "hardnessScale": "CN",
+      "thicknessesMm": [
+        2.1,
+        2.15,
+        2.2
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.shopnings.com/dhs-double-happiness-neo-hurricane-3-iii-pips-in-table-tennis-pingpong-rubber/",
+      "fictionalBrand": "Qilaro",
+      "fictionalModel": "Talon 50"
+    },
+    {
+      "id": "dhs-651",
+      "brand": "DHS",
+      "model": "651",
+      "type": "short-pips",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        2.2
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.shopnings.com/dhs-651-short-pips-table-tennis-rubber/",
+      "fictionalBrand": "Qilaro",
+      "fictionalModel": "Stud"
+    },
+    {
+      "id": "dhs-c8",
+      "brand": "DHS",
+      "model": "C8",
+      "type": "long-pips",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        0,
+        1.0,
+        1.2
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.shopnings.com/dhs-c7-c8-cloud-fog-3-long-pips-table-tennis-rubber/",
+      "fictionalBrand": "Qilaro",
+      "fictionalModel": "Thorn"
+    },
+    {
+      "id": "sanwei-target-national-player-edition",
+      "brand": "Sanwei",
+      "model": "Target National Player Edition",
+      "type": "inverted-tacky",
+      "hardness": 39,
+      "hardnessScale": "CN",
+      "thicknessesMm": [
+        2.1
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://sanweisport.com/en/product/rubber/target/target-national-player-edition-best-forehand-rubber-best-backhand-rubber/",
+      "fictionalBrand": "Sylvar",
+      "fictionalModel": "Talon 50"
+    },
+    {
+      "id": "sanwei-target-pro-blue",
+      "brand": "Sanwei",
+      "model": "Target PRO Blue",
+      "type": "inverted-tacky",
+      "hardness": 40,
+      "hardnessScale": "CN",
+      "thicknessesMm": [
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://sanweisport.com/en/product/rubber/sticky-rubber-table-tennis-target-pro-blue/",
+      "fictionalBrand": "Sylvar",
+      "fictionalModel": "Talon 51"
+    },
+    {
+      "id": "729-friendship-battle-ii-provincial-blue-sponge",
+      "brand": "729 Friendship",
+      "model": "Battle II Provincial Blue Sponge",
+      "type": "inverted-tacky",
+      "hardness": 40,
+      "hardnessScale": "CN",
+      "thicknessesMm": [
+        2.1
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "black"
+      ],
+      "source": "https://www.shopnings.com/729-battle-ii-provincial-blue-sponge-rubber/",
+      "fictionalBrand": "Orvenna",
+      "fictionalModel": "Talon 51"
+    },
+    {
+      "id": "729-friendship-fx",
+      "brand": "729 Friendship",
+      "model": "FX",
+      "type": "inverted-tacky",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        1.8,
+        2.0,
+        2.2
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.shopnings.com/friendship-729-fx-table-tennis-rubber/",
+      "fictionalBrand": "Orvenna",
+      "fictionalModel": "Talon"
+    },
+    {
+      "id": "yinhe-big-dipper-v",
+      "brand": "Yinhe",
+      "model": "Big Dipper V",
+      "type": "inverted-tacky",
+      "hardness": 39,
+      "hardnessScale": "CN",
+      "thicknessesMm": [
+        2.2
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.shopnings.com/yinhe-big-dipper-v-5-table-tennis-rubber/",
+      "fictionalBrand": "Corvessa",
+      "fictionalModel": "Talon 50"
+    },
+    {
+      "id": "double-fish-polestar-p-38",
+      "brand": "Double Fish",
+      "model": "Polestar P 38",
+      "type": "inverted-tacky",
+      "hardness": 38,
+      "hardnessScale": "CN",
+      "thicknessesMm": [],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [],
+      "source": "https://tabletennis11.com/en/double-fish-polestar-p-38",
+      "fictionalBrand": "Talvio",
+      "fictionalModel": "Talon 49"
+    },
+    {
+      "id": "double-fish-1615-long-pimples",
+      "brand": "Double Fish",
+      "model": "1615 Long Pimples",
+      "type": "long-pips",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [],
+      "source": "https://tabletennis11.com/en/double-fish-1615-long-pimples",
+      "fictionalBrand": "Talvio",
+      "fictionalModel": "Thorn"
+    },
+    {
+      "id": "donic-bluefire-m1",
+      "brand": "Donic",
+      "model": "Bluefire M1",
+      "type": "inverted-tensor",
+      "hardness": 47.5,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.donic.com/en/DONIC-Bluefire-M1/000294220",
+      "fictionalBrand": "Castrel",
+      "fictionalModel": "Surge 48"
+    },
+    {
+      "id": "donic-piranja-tec",
+      "brand": "Donic",
+      "model": "Piranja Tec",
+      "type": "long-pips",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        0,
+        1.2
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.donic.com/en/DONIC-PIRANJA-TEC/000242100",
+      "fictionalBrand": "Castrel",
+      "fictionalModel": "Thorn"
+    },
+    {
+      "id": "donic-alligator-anti",
+      "brand": "Donic",
+      "model": "Alligator Anti",
+      "type": "anti",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        1.0,
+        1.5
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.donic.com/en/DONIC-ALLIGATOR-ANTI/000244115",
+      "fictionalBrand": "Castrel",
+      "fictionalModel": "Hush"
+    },
+    {
+      "id": "tibhar-evolution-mx-p",
+      "brand": "Tibhar",
+      "model": "Evolution MX-P",
+      "type": "inverted-tensor",
+      "hardness": 46.7,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [
+        1.6,
+        1.8,
+        2.0,
+        2.2
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "black",
+        "red"
+      ],
+      "source": "https://tibhar.info/en/shop/evolution-mx-p/",
+      "fictionalBrand": "Ivarro",
+      "fictionalModel": "Surge 47"
+    },
+    {
+      "id": "tibhar-rapid",
+      "brand": "Tibhar",
+      "model": "Rapid",
+      "type": "inverted-classic",
+      "hardness": 42.5,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [
+        1.6,
+        1.8,
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "black",
+        "red"
+      ],
+      "source": "https://tibhar.info/en/shop/rapid/",
+      "fictionalBrand": "Ivarro",
+      "fictionalModel": "Draw 42"
+    },
+    {
+      "id": "tibhar-speedy-soft",
+      "brand": "Tibhar",
+      "model": "Speedy Soft",
+      "type": "short-pips",
+      "hardness": 45,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [
+        1.0,
+        1.5,
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "black",
+        "red"
+      ],
+      "source": "https://tibhar.info/en/shop/speedy-soft/",
+      "fictionalBrand": "Ivarro",
+      "fictionalModel": "Stud 45"
+    },
+    {
+      "id": "tibhar-grass-d-tecs",
+      "brand": "Tibhar",
+      "model": "Grass D.TecS",
+      "type": "long-pips",
+      "hardness": 47.5,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [
+        0,
+        0.5,
+        0.9,
+        1.2,
+        1.6
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "black",
+        "red"
+      ],
+      "source": "https://tibhar.info/en/shop/grass-d-tecs/",
+      "fictionalBrand": "Ivarro",
+      "fictionalModel": "Thorn 48"
+    },
+    {
+      "id": "tibhar-ellen-off",
+      "brand": "Tibhar",
+      "model": "Ellen Off",
+      "type": "anti",
+      "hardness": 38,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [
+        1.5,
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "black",
+        "red"
+      ],
+      "source": "https://tibhar.info/en/shop/ellen-def-off/",
+      "fictionalBrand": "Ivarro",
+      "fictionalModel": "Hush 38"
+    },
+    {
+      "id": "stiga-mantra-pro-m",
+      "brand": "Stiga",
+      "model": "Mantra Pro M",
+      "type": "inverted-tensor",
+      "hardness": 47.5,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [
+        2.1
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.stigasports.com/en/product/mantra-pro-m",
+      "fictionalBrand": "Nordhal",
+      "fictionalModel": "Surge 48"
+    },
+    {
+      "id": "stiga-dna-platinum-h",
+      "brand": "Stiga",
+      "model": "DNA Platinum H",
+      "type": "inverted-tensor",
+      "hardness": 50,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [
+        2.1,
+        2.2,
+        2.3
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.stigasports.com/en/product/dna-platinum-h",
+      "fictionalBrand": "Nordhal",
+      "fictionalModel": "Surge 50"
+    },
+    {
+      "id": "andro-rasanter-r47",
+      "brand": "Andro",
+      "model": "Rasanter R47",
+      "type": "inverted-tensor",
+      "hardness": 47,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [
+        1.7,
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [],
+      "source": "https://www.andro.de/en/node/46",
+      "fictionalBrand": "Quintar",
+      "fictionalModel": "Surge 47"
+    },
+    {
+      "id": "andro-hexer-powergrip",
+      "brand": "Andro",
+      "model": "Hexer Powergrip",
+      "type": "inverted-tensor",
+      "hardness": 47.5,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [
+        1.7,
+        1.9,
+        2.1
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [],
+      "source": "https://www.andro.de/en/hexer-powergrip",
+      "fictionalBrand": "Quintar",
+      "fictionalModel": "Surge 48"
+    },
+    {
+      "id": "andro-good",
+      "brand": "Andro",
+      "model": "Good",
+      "type": "inverted-classic",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        1.8,
+        2.1
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [],
+      "source": "https://www.andro.de/en/good",
+      "fictionalBrand": "Quintar",
+      "fictionalModel": "Draw"
+    },
+    {
+      "id": "andro-rasant-chaos",
+      "brand": "Andro",
+      "model": "Rasant Chaos",
+      "type": "long-pips",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        0,
+        0.5,
+        1.2
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [],
+      "source": "https://www.andro.de/en/rasant-chaos",
+      "fictionalBrand": "Quintar",
+      "fictionalModel": "Thorn"
+    },
+    {
+      "id": "gewo-nexxus-el-pro-50-hard",
+      "brand": "Gewo",
+      "model": "Nexxus EL Pro 50 Hard",
+      "type": "inverted-tensor",
+      "hardness": 50,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [
+        2.1
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red"
+      ],
+      "source": "https://www.gewo-tt.com/GEWO-Belag-Nexxus-EL-Pro-50-Hard/9166",
+      "fictionalBrand": "Ferrano",
+      "fictionalModel": "Surge 50"
+    },
+    {
+      "id": "joola-dynaryz-agr",
+      "brand": "Joola",
+      "model": "Dynaryz AGR",
+      "type": "inverted-tensor",
+      "hardness": 50,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [],
+      "source": "https://tabletennis11.com/en/joola-dynaryz-agr",
+      "fictionalBrand": "Zelvan",
+      "fictionalModel": "Surge 50"
+    },
+    {
+      "id": "joola-cwx",
+      "brand": "Joola",
+      "model": "CWX",
+      "type": "long-pips",
+      "hardness": 50,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [],
+      "source": "https://tabletennis11.com/en/joola-cwx",
+      "fictionalBrand": "Zelvan",
+      "fictionalModel": "Thorn 50"
+    },
+    {
+      "id": "dr-neubauer-viper",
+      "brand": "Dr. Neubauer",
+      "model": "Viper",
+      "type": "long-pips",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        0,
+        0.6,
+        1.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.drneubauer.de/shop.php?cat=1&cat_s=4&lang=us&prod=91",
+      "fictionalBrand": "Mirsk",
+      "fictionalModel": "Thorn"
+    },
+    {
+      "id": "dr-neubauer-aggressor",
+      "brand": "Dr. Neubauer",
+      "model": "Aggressor",
+      "type": "medium-pips",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        0,
+        0.6,
+        1.0,
+        1.3,
+        1.5,
+        1.8,
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.drneubauer.de/shop.php?cat=1&cat_s=7&lang=us&prod=100",
+      "fictionalBrand": "Mirsk",
+      "fictionalModel": "Burr"
+    },
+    {
+      "id": "dr-neubauer-gorilla",
+      "brand": "Dr. Neubauer",
+      "model": "Gorilla",
+      "type": "anti",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        1.2,
+        1.5,
+        1.8
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.drneubauer.de/shop.php?cat=1&cat_s=8&lang=us&prod=69",
+      "fictionalBrand": "Mirsk",
+      "fictionalModel": "Hush"
+    },
+    {
+      "id": "spinlord-dornenglanz-iii",
+      "brand": "Spinlord",
+      "model": "Dornenglanz III",
+      "type": "long-pips",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        0,
+        1.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://spinlord-tt.de/spinlord-dornenglanz-iii.html",
+      "fictionalBrand": "Thornvale",
+      "fictionalModel": "Thorn"
+    },
+    {
+      "id": "spinlord-keiler-ii",
+      "brand": "Spinlord",
+      "model": "Keiler II",
+      "type": "medium-pips",
+      "hardness": 46,
+      "hardnessScale": "other",
+      "thicknessesMm": [
+        1.5,
+        1.8,
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "black",
+        "violet"
+      ],
+      "source": "https://spinlord-tt.de/spinlord-keiler-ii.html",
+      "fictionalBrand": "Thornvale",
+      "fictionalModel": "Burr 46"
+    },
+    {
+      "id": "spinlord-gigant",
+      "brand": "Spinlord",
+      "model": "Gigant",
+      "type": "anti",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        1.2
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://spinlord-tt.de/spinlord-gigant.html",
+      "fictionalBrand": "Thornvale",
+      "fictionalModel": "Hush"
+    },
+    {
+      "id": "der-materialspezialist-hallucination",
+      "brand": "Der Materialspezialist",
+      "model": "Hallucination",
+      "type": "long-pips",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        0,
+        0.7
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black",
+        "green",
+        "blue"
+      ],
+      "source": "https://www.der-materialspezialist.com/Belaege/der-materialspezialist/Lange-Noppen/HALLUCINATION::235.html",
+      "fictionalBrand": "Verrisk",
+      "fictionalModel": "Thorn"
+    },
+    {
+      "id": "der-materialspezialist-wildfire",
+      "brand": "Der Materialspezialist",
+      "model": "Wildfire",
+      "type": "medium-pips",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        0,
+        1.3,
+        1.7,
+        2.1
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black",
+        "green"
+      ],
+      "source": "https://www.der-materialspezialist.com/Belaege/der-materialspezialist/Halblange-Noppen/WILDFIRE::226.html",
+      "fictionalBrand": "Verrisk",
+      "fictionalModel": "Burr"
+    },
+    {
+      "id": "der-materialspezialist-transformer",
+      "brand": "Der Materialspezialist",
+      "model": "Transformer",
+      "type": "anti",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        0.6,
+        1.0,
+        1.5
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.der-materialspezialist.com/Belaege/der-materialspezialist/Anti-Top/TRANSFORMER::103.html",
+      "fictionalBrand": "Verrisk",
+      "fictionalModel": "Hush"
+    },
+    {
+      "id": "sauer-tr-ger-hellfire-x",
+      "brand": "Sauer & Tröger",
+      "model": "Hellfire X",
+      "type": "long-pips",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        0,
+        0.5,
+        1.2
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black",
+        "violet",
+        "green",
+        "blue"
+      ],
+      "source": "https://www.sauer-troeger.com/en/products/hellfire-x",
+      "fictionalBrand": "Lindqvar",
+      "fictionalModel": "Thorn"
+    },
+    {
+      "id": "sauer-tr-ger-hipster",
+      "brand": "Sauer & Tröger",
+      "model": "Hipster",
+      "type": "medium-pips",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        1.1,
+        1.5,
+        1.9
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.sauer-troeger.com/en/products/hipster-1",
+      "fictionalBrand": "Lindqvar",
+      "fictionalModel": "Burr"
+    },
+    {
+      "id": "sauer-tr-ger-blackout",
+      "brand": "Sauer & Tröger",
+      "model": "Blackout",
+      "type": "anti",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        1.5,
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black",
+        "blue"
+      ],
+      "source": "https://www.sauer-troeger.com/en/products/blackout-anti",
+      "fictionalBrand": "Lindqvar",
+      "fictionalModel": "Hush"
+    },
+    {
+      "id": "sauer-tr-ger-hass",
+      "brand": "Sauer & Tröger",
+      "model": "Hass",
+      "type": "short-pips",
+      "hardness": null,
+      "hardnessScale": null,
+      "thicknessesMm": [
+        1.5,
+        1.8,
+        2.1
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.sauer-troeger.com/en/products/hass",
+      "fictionalBrand": "Lindqvar",
+      "fictionalModel": "Stud"
+    },
+    {
+      "id": "xiom-vega-pro",
+      "brand": "Xiom",
+      "model": "Vega Pro",
+      "type": "inverted-tensor",
+      "hardness": 47.5,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [
+        1.8,
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.xiom.eu/vega-pro",
+      "fictionalBrand": "Kairon",
+      "fictionalModel": "Surge 48"
+    },
+    {
+      "id": "xiom-omega-vii-pro",
+      "brand": "Xiom",
+      "model": "Omega VII Pro",
+      "type": "inverted-tensor",
+      "hardness": 47.5,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.xiom.eu/omega7-pro",
+      "fictionalBrand": "Kairon",
+      "fictionalModel": "Surge 48 II"
+    },
+    {
+      "id": "xiom-vega-europe",
+      "brand": "Xiom",
+      "model": "Vega Europe",
+      "type": "inverted-tensor",
+      "hardness": 42.5,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [
+        1.8,
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.xiom.eu/vega-euro",
+      "fictionalBrand": "Kairon",
+      "fictionalModel": "Surge 42"
+    },
+    {
+      "id": "nexy-etika-pro-h",
+      "brand": "Nexy",
+      "model": "Etika Pro H",
+      "type": "inverted-tensor",
+      "hardness": 51,
+      "hardnessScale": "other",
+      "thicknessesMm": [
+        2.2
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://www.tak9.com/goods/goods_view.php?goodsNo=1000000445",
+      "fictionalBrand": "Velstra",
+      "fictionalModel": "Surge 51"
+    },
+    {
+      "id": "cornilleau-target-pro-gt-h47",
+      "brand": "Cornilleau",
+      "model": "Target Pro GT H47",
+      "type": "inverted-tensor",
+      "hardness": 47,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://us.cornilleau.com/rubbers/301-470-target-pro-gt-h47.html",
+      "fictionalBrand": "Belcour",
+      "fictionalModel": "Surge 47"
+    },
+    {
+      "id": "cornilleau-target-pro-gt-m43",
+      "brand": "Cornilleau",
+      "model": "Target Pro GT M43",
+      "type": "inverted-tensor",
+      "hardness": 43,
+      "hardnessScale": "ESN",
+      "thicknessesMm": [
+        2.0
+      ],
+      "weightG": null,
+      "weightIsCut": false,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "source": "https://us.cornilleau.com/rubbers/302-473-target-pro-gt-m43.html",
+      "fictionalBrand": "Belcour",
+      "fictionalModel": "Surge 43"
+    }
+  ]
+}

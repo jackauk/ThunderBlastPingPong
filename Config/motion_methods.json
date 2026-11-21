@@ -1,0 +1,30 @@
+{
+  "ready": [
+    "ready_normal"
+  ],
+  "serve": [
+    "forehand_serve1"
+  ],
+  "bh_push.first": [
+    "move_in_short_left"
+  ],
+  "bh_block.first": [
+    "move_in_short_left"
+  ],
+  "bh_drive.first": [
+    "move_in_short_left"
+  ],
+  "bh_flick.first": [
+    "move_in_short_left"
+  ],
+  "bh_push": [
+    "cut_push_in_left_short",
+    "cut_push_in_left_short_2"
+  ],
+  "push_underspin_side_left": [
+    "cut_push_in_left_short_2"
+  ],
+  "push_underspin_side_right": [
+    "cut_push_in_left_short_2"
+  ]
+}

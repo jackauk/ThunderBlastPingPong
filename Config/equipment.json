@@ -1,0 +1,12 @@
+{
+  "player": {
+    "blade": "yinhe-pro-01",
+    "forehand": "butterfly-dignics-09c",
+    "forehandMm": 2.1,
+    "forehandColor": "red",
+    "backhand": "butterfly-dignics-09c",
+    "backhandMm": 2.1,
+    "backhandColor": "black",
+    "handle": "FL"
+  }
+}

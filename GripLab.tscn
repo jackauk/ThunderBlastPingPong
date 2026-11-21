@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Script/GripLab.cs" id="1_lab"]
+
+[node name="GripLab" type="Node3D"]
+script = ExtResource("1_lab")
