@@ -9,7 +9,11 @@ public static class ShotSolver
     const float MinPace = 2.5f;
     const float PaceStep = 0.75f;
     const float NetClearance = 0.07f; // so a small aiming error does not put a planned shot in the net
-    const float ServeBounceInset = 0.2f; // a serve's first bounce lands this far inside the end line
+    const float ServeNetClearance = 0.03f; // a serve is struck as worked out, without that error: it skims the net
+    // A serve's first bounce lands at least this far inside the end line (the rules ask only that
+    // it lands on the server's court; a low serve met near the table, as the best players serve,
+    // bounces 10-20 cm in, so the margin is kept small).
+    const float ServeBounceInset = 0.05f;
 
     // Legal shot to aim at the given pace (speed along Z) or, failing that, the nearest slower
     // and then faster pace; then aimed again at aim + error at that pace so a sloppy stroke can
@@ -148,13 +152,18 @@ public static class ShotSolver
     static float NaturalPitch(Vector3 racketVelocity) =>
         -(racketVelocity.Y > 0f ? 1f : 0.6f) * Mathf.Atan2(racketVelocity.Y, Mathf.Abs(racketVelocity.Z) + 1f);
 
-    // A serve found by searching launch velocities: the legal one whose second bounce lands
-    // nearest aim. Slower than PlanShot, but PlanShot's Newton steps lose their way when heavy
-    // backspin makes a short serve float. Fails when no legal serve exists.
+    // A serve found by searching launch velocities: of the legal ones, the one landing near aim
+    // and keeping low, as a server keeps a serve low over the net and its bounce on the other side
+    // low (a high one sits up to be attacked): each centimetre over the net counts as much as
+    // LowOverNet cm of miss, each of the bounce's rise on the other side as LowBounce cm. Slower
+    // than PlanShot, but PlanShot's Newton steps lose their way when heavy backspin makes a short
+    // serve float. Fails when no legal serve exists.
+    const float LowOverNet = 1.5f, LowBounce = 0.5f;
+
     public static bool SearchServe(Vector3 from, Vector3 spin, Vector2 aim, out Vector3 velocity)
     {
         velocity = Vector3.Zero;
-        float bestMiss = float.MaxValue;
+        float bestCost = float.MaxValue;
         float dz = aim.Y - from.Z;
         for (float forward = 2f; forward <= 6.5f; forward += 0.3f)
         {
@@ -164,14 +173,56 @@ public static class ShotSolver
                 if (!TryLand(from, v, spin, 2, out Vector2 land))
                     continue;
                 float miss = land.DistanceTo(aim);
-                if (miss < bestMiss && IsLegal(from, v, spin, 2))
+                if (miss >= bestCost || !IsLegal(from, v, spin, 2))
+                    continue;
+                var (overNet, bounce) = ServeHeights(from, v, spin);
+                float cost = miss + LowOverNet * Mathf.Max(overNet, 0f) + LowBounce * bounce;
+                if (cost < bestCost)
                 {
-                    bestMiss = miss;
+                    bestCost = cost;
                     velocity = v;
                 }
             }
         }
-        return bestMiss < float.MaxValue;
+        return bestCost < float.MaxValue;
+    }
+
+    // How far a serve passes over the net and how high it rises after its bounce on the other
+    // side (metres, from the net's top and the table).
+    public static (float OverNet, float Bounce) ServeHeights(Vector3 from, Vector3 velocity, Vector3 spin)
+    {
+        var s = new BallState(from, velocity, spin);
+        float overNet = 0f, bounce = 0f;
+        bool crossed = false;
+        int bounces = 0;
+        for (float t = 0f; t < MaxFlightTime && bounces < 3; t += Ball.SubStepTime)
+        {
+            Vector3 before = s.Position;
+            BallEvent e = Ball.Step(ref s, Ball.SubStepTime, false);
+            if (!crossed && before.Z * s.Position.Z <= 0f && before.Z != 0f)
+            {
+                crossed = true;
+                overNet = s.Position.Y - Ball.Radius - TableSpec.NetTop;
+            }
+            if (e == BallEvent.Table && ++bounces == 3)
+                break;
+            if (e == BallEvent.Floor)
+                break;
+            if (bounces == 2)
+                bounce = Mathf.Max(bounce, s.Position.Y - Ball.Radius - TableSpec.Height);
+        }
+        return (overNet, bounce);
+    }
+
+    // Whether any legal serve (with this spin) can be played from here: a few aims over the
+    // receiver's half. For a serve motion whose contact may be too low or too far back.
+    public static bool CanServeFrom(Vector3 from, Vector3 spin)
+    {
+        float far = -Mathf.Sign(from.Z);
+        foreach (Vector2 aim in new[] { new Vector2(0f, far * 0.5f), new Vector2(0f, far * 0.9f), new Vector2(-0.4f, far * 0.7f), new Vector2(0.4f, far * 0.7f) })
+            if (SearchServe(from, spin, aim, out _))
+                return true;
+        return false;
     }
 
     // Face angles (pitch, yaw) of a face normal; the inverse of FaceNormal.
@@ -297,7 +348,7 @@ public static class ShotSolver
             Vector3 before = s.Position;
             BallEvent evt = Ball.Step(ref s, dt, false);
             if (before.Z * s.Position.Z <= 0f && before.Z != 0f &&
-                before.Lerp(s.Position, before.Z / (before.Z - s.Position.Z)).Y < TableSpec.NetTop + Ball.Radius + NetClearance)
+                before.Lerp(s.Position, before.Z / (before.Z - s.Position.Z)).Y < TableSpec.NetTop + Ball.Radius + (bounces == 2 ? ServeNetClearance : NetClearance))
                 return false;
 
             switch (evt)

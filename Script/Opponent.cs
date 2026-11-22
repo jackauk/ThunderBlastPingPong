@@ -142,6 +142,10 @@ public partial class Opponent : Node3D, IBallHitter
     Vector3 tossPoint;
     bool tossing;
     bool topspinServe;
+    // How much spin the serve is for: the serve motion's (its contact shaped in the Pose Lab), or
+    // as it comes (the NPC's own mix) for its own serves.
+    PoseSequence.SpinLevel serveSpin;
+    PoseSequence.Brush serveBrush; // a sidespin brush turns the serve's spin mostly about the vertical
 
     // A serve from the motion database (ServeMotion), picked at random for each serve: the
     // body stands in its first step while holding the ball, then plays it (PoseRig lays each
@@ -272,6 +276,10 @@ public partial class Opponent : Node3D, IBallHitter
         if (playingMotion)
             EndServeMotion();
         serveMotion = HasServe && TargetBall != null ? PickServeMotion() : null;
+        // The new serve waits in its first step (the ball on the palm), not where the last one
+        // ended: the motion's clock starts again.
+        motionTime = 0f;
+        motionTossed = motionStruck = false;
     }
 
     // One of the database's serve motions at random (null when there is none: the built-in serve).
@@ -317,6 +325,8 @@ public partial class Opponent : Node3D, IBallHitter
         {
             motionStruck = true;
             topspinServe = !serveMotion.Underspin;
+            serveSpin = serveMotion.Spin;
+            serveBrush = serveMotion.Brush;
             BallState atContact = serveMotion.Flight(tossVelocity, serveMotion.ContactAt - serveMotion.TossAt);
             Serve(TargetBall, serveMotion.Name, atContact);
         }
@@ -881,6 +891,8 @@ public partial class Opponent : Node3D, IBallHitter
         tossing = true;
         interceptEta = -1f;
         topspinServe = GD.Randf() < 0.5f;
+        serveSpin = PoseSequence.SpinLevel.AsShaped; // its own serve: its own mix
+        serveBrush = PoseSequence.Brush.AsMade;
         paddle.ChooseSide(1f);
         paddle.Style = topspinServe ? StrokeStyle.Drive : StrokeStyle.Push;
     }
@@ -915,7 +927,14 @@ public partial class Opponent : Node3D, IBallHitter
     {
         BallState toss = at ?? Own(ball.State);
         Work(Fatigue.ServeEffort);
-        LastStroke = topspinServe ? "topspin serve" : "underspin serve";
+        string kind = (serveSpin switch
+        {
+            PoseSequence.SpinLevel.None => "no-spin ",
+            PoseSequence.SpinLevel.Light => "light ",
+            PoseSequence.SpinLevel.Heavy => "heavy ",
+            _ => "",
+        }) + (serveBrush is PoseSequence.Brush.SideLeft or PoseSequence.Brush.SideRight ? "sidespin serve" : topspinServe ? "topspin serve" : "underspin serve");
+        LastStroke = kind;
         LastRole = StrokeRole.Serve;
         for (int attempt = 0; attempt < 12; attempt++)
         {
@@ -925,7 +944,7 @@ public partial class Opponent : Node3D, IBallHitter
             float pace = (float)GD.RandRange(3.2, 5.0);
             if (topspinServe)
             {
-                wanted = new Vector3(Human.ServeSpin(Skill) * Mathf.Tau * (float)GD.RandRange(0.5, 1.1), (float)GD.RandRange(-150.0, 150.0), 0f);
+                wanted = new Vector3(Human.ServeSpin(Skill) * Mathf.Tau * ServeSpinShare(0.5, 1.1), (float)GD.RandRange(-150.0, 150.0) * SideShare(), 0f);
                 aim = new Vector2((float)GD.RandRange(-0.5, 0.5), (float)GD.RandRange(0.6, 1.1));
             }
             else
@@ -934,8 +953,12 @@ public partial class Opponent : Node3D, IBallHitter
                 // receiver's half), with heavy backspin that checks the ball after its bounces.
                 // The rubber's friction is capped by the push, so when no contact gives the
                 // spin, ask a little less.
-                float backspin = Human.ServeSpin(Skill) * Mathf.Tau * (float)GD.RandRange(1.0, 1.4) * Mathf.Pow(0.92f, attempt);
-                wanted = new Vector3(-backspin, (float)GD.RandRange(-80.0, 80.0), 0f);
+                float backspin = Human.ServeSpin(Skill) * Mathf.Tau * ServeSpinShare(1.0, 1.4) * Mathf.Pow(0.92f, attempt);
+                wanted = new Vector3(-backspin, (float)GD.RandRange(-80.0, 80.0) * SideShare(), 0f);
+                // A sidespin brush: the spin mostly sideways (brushing across to the left spins the
+                // ball about - Y, to the right about + Y), with a little backspin under it.
+                if (serveBrush is PoseSequence.Brush.SideLeft or PoseSequence.Brush.SideRight)
+                    wanted = new Vector3(-backspin * 0.35f, (serveBrush == PoseSequence.Brush.SideLeft ? -1f : 1f) * backspin, 0f);
                 aim = new Vector2((float)GD.RandRange(-0.45, 0.45), (float)GD.RandRange(0.35, 0.6));
             }
 
@@ -957,26 +980,52 @@ public partial class Opponent : Node3D, IBallHitter
 
             Ball.RacketContact serveContact = Ball.Analyse(toss, normal, racket, Ball.RubberGrip, ServeHitter);
             BallState served = serveContact.After;
-            if (!ShotSolver.IsLegal(served.Position, served.Velocity, served.Spin, 2))
-                continue;
 
             ball.Strike(Side, World(toss.Position), World(served.Velocity), World(served.Spin));
             Vector2 face = ShotSolver.FaceAngles(normal, OwnSide);
             if (motion == null)
                 paddle.Strike(face, World(racket), topspinServe ? StrokeStyle.Drive : StrokeStyle.Push); // a motion swings the racket itself
-            LogRacket((topspinServe ? "topspin serve" : "underspin serve") + (motion != null
+            LogRacket(kind + (motion != null
                 ? $" from the motion {motion}" // the motion swung the racket, not the arm chain
                 : $" (racket speed: {ShareOut(racket, StrokeStyle.Push, true)})"), racket, face);
             DebugOverlay.Log("    " + Ball.Describe(serveContact));
             return;
         }
 
-        Vector3 plain = ShotSolver.PlanShot(toss.Position, Vector3.Zero, new Vector2(0f, 0.85f), 4f, 2, Vector2.Zero);
+        // No brushed serve: a plain one without spin, searched for like the underspin serve (a
+        // low contact needs the ball struck down so it bounces up over the net), aimed deep then
+        // short; only if none is legal from here is the ball just popped over.
+        Vector3 plain = Vector3.Zero;
+        bool legalPlain = false;
+        foreach (float depth in new[] { 0.85f, 0.6f, 0.4f })
+            if (ShotSolver.SearchServe(toss.Position, Vector3.Zero, new Vector2(0f, depth), out plain))
+            {
+                legalPlain = true;
+                break;
+            }
+        if (!legalPlain)
+            plain = ShotSolver.PlanShot(toss.Position, Vector3.Zero, new Vector2(0f, 0.85f), 4f, 2, Vector2.Zero);
         ball.Strike(Side, World(toss.Position), World(plain), Vector3.Zero);
         if (motion == null)
             paddle.Strike(Vector2.Zero, World(plain), StrokeStyle.Drive);
-        DebugOverlay.Log($"  {Tag} plain serve (no brushed serve worked)");
+        DebugOverlay.Log(legalPlain
+            ? $"  {Tag} plain serve (no brushed serve worked)"
+            : $"  {Tag} no legal serve from the contact at ({toss.Position.X:F2}, {toss.Position.Y:F2}, {toss.Position.Z:F2}): "
+              + $"{(toss.Position.Y - TableSpec.Height) * 100f:F0} cm above the table, {(-TableSpec.HalfLength - toss.Position.Z) * 100f:F0} cm behind the end line; the ball is popped over");
     }
+
+    // The share of the player's full serve spin (Human.ServeSpin) asked for: the motion's level, or
+    // at random in the NPC's own range (from, to) for a contact left as made.
+    float ServeSpinShare(double from, double to) => serveSpin switch
+    {
+        PoseSequence.SpinLevel.None => 0.04f,  // through the middle: next to none
+        PoseSequence.SpinLevel.Light => (float)GD.RandRange(0.35, 0.5),
+        PoseSequence.SpinLevel.Heavy => (float)GD.RandRange(1.2, 1.4),
+        _ => (float)GD.RandRange(from, to),
+    };
+
+    // Sidespin goes with it: none on a dead ball, a little on a light one.
+    float SideShare() => serveSpin switch { PoseSequence.SpinLevel.None => 0.05f, PoseSequence.SpinLevel.Light => 0.5f, _ => 1f };
 
     // Steps the feet, bends the knees and leans the torso so the right shoulder comes to its
     // place relative to the paddle hand's wrist at the hitting point. The backswing and

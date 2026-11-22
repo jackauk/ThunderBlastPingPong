@@ -23,6 +23,8 @@ public sealed class ServeMotion
     public float ContactAt;
     public Vector3 ContactPoint;
     public bool Underspin;
+    public PoseSequence.SpinLevel Spin; // how much spin, as the Pose Lab's contact is shaped for
+    public PoseSequence.Brush Brush;    // which way the racket brushes the ball (the kind of spin)
     public float Length => Sequence.Length;
 
     public Dictionary<string, float> PoseAt(float time) => Sequence.Sample(Mathf.Clamp(time, 0f, Length));
@@ -104,9 +106,12 @@ public sealed class ServeMotion
         }
         int toss = apex - 1;
 
-        // The contact: a step named so, or the racket nearest the ball after the toss.
-        int contact = -1;
-        for (int i = apex; i < steps.Count; i++)
+        // The contact: the step marked as meeting the ball (the Pose Lab's contact lock), a step
+        // named so, or the racket nearest the ball after the toss.
+        int contact = steps.FindIndex(st => st.Meets);
+        if (contact < apex)
+            contact = -1;
+        for (int i = apex; i < steps.Count && contact < 0; i++)
             if (steps[i].Name.ToLowerInvariant().Contains("contact"))
             {
                 contact = i;
@@ -146,6 +151,12 @@ public sealed class ServeMotion
         // gives underspin; brushing up the back, topspin.
         Vector3 before = PoseRig.RacketAt(steps[contact - 1].Values);
         motion.Underspin = steps[contact].Values.GetValueOrDefault("racket.open") > 45f || racket.Y < before.Y;
+        motion.Spin = sequence.ContactIndex == contact ? sequence.ContactSpin : PoseSequence.SpinLevel.AsShaped;
+        motion.Brush = sequence.ContactIndex == contact ? sequence.ContactBrush : PoseSequence.Brush.AsMade;
+        if (motion.Brush == PoseSequence.Brush.Top)
+            motion.Underspin = false;
+        else if (motion.Brush != PoseSequence.Brush.AsMade)
+            motion.Underspin = true; // backspin, or sidespin served with a little backspin under it
         return motion;
     }
 
@@ -171,5 +182,5 @@ public sealed class ServeMotion
     }
 
     public override string ToString() =>
-        $"{Name} ({(Underspin ? "underspin" : "topspin")}; toss at {TossAt:F2} s, contact at {ContactAt:F2} s, ends {Length:F2} s)";
+        $"{Name} ({(Spin == PoseSequence.SpinLevel.AsShaped ? "" : Spin.ToString().ToLower() + " ")}{(Underspin ? "underspin" : "topspin")}; toss at {TossAt:F2} s, contact at {ContactAt:F2} s, ends {Length:F2} s)";
 }

@@ -979,6 +979,32 @@ public partial class PoseLab : Node3D
             Hold("lelbow.swivel", Mathf.RadToDeg(Swivel(shoulder, W(LeftHandAt), Vector3.Down, elbow, W(Vector3.Right))));
     }
 
+    // The racket where the pose has it and the right arm reaching it (a racket out of reach comes
+    // in with the hand at full stretch).
+    void PlaceRacketAndArm()
+    {
+        var racket = new Transform3D(toWorld * RacketBasis, W(RacketAt));
+        paddle.GlobalTransform = racket;
+        rightWrist = racket * paddle.WristLocal;
+        // The right elbow starts where the grip puts it (up the forearm's natural line from the
+        // wrist, as in the game), and the swivel turns it out or in from there.
+        Vector3 gripElbow = rightWrist + (racket.Basis * GripForearm).Normalized() * Arm.ForearmSize;
+        rightArm.Solve(rightShoulder, rightWrist, Pole(rightShoulder, rightWrist, gripElbow - rightShoulder, R("relbow.swivel"), W(Vector3.Left)));
+        // The arm keeps its length: a racket out of reach comes in with the hand at full stretch.
+        if (rightArm.WristPoint.DistanceTo(rightWrist) > 1e-4f)
+        {
+            paddle.GlobalPosition += rightArm.WristPoint - rightWrist;
+            rightWrist = rightArm.WristPoint;
+            Vector3 racketGot = O(paddle.GlobalPosition);
+            Hold("racket.x", racketGot.X);
+            Hold("racket.y", racketGot.Y);
+            Hold("racket.z", racketGot.Z);
+            if (!atFullReach.Contains("right arm straight: the racket comes in to its reach"))
+                atFullReach.Add("right arm straight: the racket comes in to its reach");
+        }
+
+    }
+
     void Apply()
     {
         if (body == null || (InGame && !open))
@@ -1010,24 +1036,11 @@ public partial class PoseLab : Node3D
         rightShoulder = ShoulderAt(true);
         leftShoulder = ShoulderAt(false);
 
-        var racket = new Transform3D(toWorld * RacketBasis, W(RacketAt));
-        paddle.GlobalTransform = racket;
-        rightWrist = racket * paddle.WristLocal;
-        // The right elbow starts where the grip puts it (up the forearm's natural line from the
-        // wrist, as in the game), and the swivel turns it out or in from there.
-        Vector3 gripElbow = rightWrist + (racket.Basis * GripForearm).Normalized() * Arm.ForearmSize;
-        rightArm.Solve(rightShoulder, rightWrist, Pole(rightShoulder, rightWrist, gripElbow - rightShoulder, R("relbow.swivel"), W(Vector3.Left)));
-        // The arm keeps its length: a racket out of reach comes in with the hand at full stretch.
-        if (rightArm.WristPoint.DistanceTo(rightWrist) > 1e-4f)
-        {
-            paddle.GlobalPosition += rightArm.WristPoint - rightWrist;
-            rightWrist = rightArm.WristPoint;
-            Vector3 racketGot = O(paddle.GlobalPosition);
-            Hold("racket.x", racketGot.X);
-            Hold("racket.y", racketGot.Y);
-            Hold("racket.z", racketGot.Z);
-            atFullReach.Add("right arm straight: the racket comes in to its reach");
-        }
+        PlaceRacketAndArm();
+        // The step that meets the ball: the blade is kept on it, whatever moved (the racket comes
+        // to the ball, the arm with it), then placed again.
+        if (ContactLocked && KeepOnBall())
+            PlaceRacketAndArm();
 
         leftArm.Open = V("lhand.open");
         leftArm.Solve(leftShoulder, W(LeftHandAt), Pole(leftShoulder, W(LeftHandAt), Vector3.Down, R("lelbow.swivel"), W(Vector3.Right)), W(Palm));
@@ -1041,7 +1054,7 @@ public partial class PoseLab : Node3D
         }
 
         ball.GlobalPosition = W(BallAt);
-        ball.Visible = V("ball.show") > 0.5f;
+        ball.Visible = V("ball.show") > 0.5f || ContactLocked; // the ball it meets, shown while the step is edited
 
         for (int i = 0; i < Parts.Length; i++)
         {
@@ -1557,7 +1570,10 @@ public partial class PoseLab : Node3D
         var panel = new PanelContainer
         {
             AnchorLeft = 1f, AnchorRight = 1f, AnchorTop = 0f, AnchorBottom = 1f,
-            OffsetLeft = -400f, OffsetRight = 0f, OffsetTop = 0f, OffsetBottom = 0f
+            OffsetLeft = -400f, OffsetRight = 0f, OffsetTop = 0f, OffsetBottom = 0f,
+            // Anything wider than 400 px pushes the panel's left edge out, never its right one off
+            // the window (the rows below wrap, so that should not happen).
+            GrowHorizontal = Control.GrowDirection.Begin,
         };
         panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color(0.08f, 0.09f, 0.11f, 0.93f), ContentMarginLeft = 8, ContentMarginRight = 8, ContentMarginTop = 6, ContentMarginBottom = 6 });
         layer.AddChild(panel);
@@ -1567,8 +1583,13 @@ public partial class PoseLab : Node3D
         box.AddThemeConstantOverride("separation", 4);
         scroll.AddChild(box);
 
-        var titleRow = new HBoxContainer();
+        VBoxContainer root = box; // the sections below each fold away (Section)
+        // The title and its buttons wrap onto a second line when they do not fit beside it (in the
+        // game the target picker and "Back to game" join them).
+        var titleRow = new HFlowContainer();
         titleRow.AddChild(Heading(InGame ? "POSE LAB (game frozen)" : "POSE LAB"));
+        titleRow.AddChild(MakeButton("Fold all", () => FoldAll(true)));
+        titleRow.AddChild(MakeButton("Open all", () => FoldAll(false)));
         if (InGame)
         {
             targetPicker = new OptionButton();
@@ -1577,9 +1598,32 @@ public partial class PoseLab : Node3D
             titleRow.AddChild(MakeButton($"Back to game ({ToggleKey})", Close));
         }
         box.AddChild(titleRow);
-        box.AddChild(Small("Click a marker to pick a part, drag to move it. Right drag: turn view, middle drag: pan, wheel: zoom."));
+        box.AddChild(Small("Click a marker to pick a part, drag to move it. Right drag: turn view, middle drag: pan, wheel: zoom. Click a section's title to fold it."));
+        // The focus: what is being edited now, always in view at the top, and the last message.
+        var focusFrame = new PanelContainer();
+        focusFrame.AddThemeStyleboxOverride("panel", new StyleBoxFlat
+        {
+            BgColor = new Color(0.1f, 0.2f, 0.28f), BorderColor = new Color(0.35f, 0.75f, 1f), BorderWidthLeft = 4,
+            CornerRadiusTopLeft = 4, CornerRadiusTopRight = 4, CornerRadiusBottomLeft = 4, CornerRadiusBottomRight = 4,
+            ContentMarginLeft = 10, ContentMarginRight = 8, ContentMarginTop = 6, ContentMarginBottom = 6,
+        });
+        var focusBox = new VBoxContainer();
+        focusFrame.AddChild(focusBox);
+        focusLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        focusLabel.AddThemeFontSizeOverride("font_size", 14);
+        focusLabel.AddThemeColorOverride("font_color", new Color(0.85f, 0.95f, 1f));
+        focusBox.AddChild(focusLabel);
+        status = Small("");
+        status.AddThemeColorOverride("font_color", new Color(0.7f, 0.85f, 0.75f));
+        focusBox.AddChild(status);
+        // The frame rate and what the lab's own work takes of each frame (clear of the game's
+        // overlay at the top left).
+        fpsLabel = Small("");
+        focusBox.AddChild(fpsLabel);
+        box.AddChild(focusFrame);
 
         // Mode: how a drag works (keys Q W E R T).
+        box = Section(root, "MODE  (how a drag works)", "mode", true);
         var modeRow = new HFlowContainer();
         foreach (var (m, _, label, _) in Modes)
         {
@@ -1602,10 +1646,11 @@ public partial class PoseLab : Node3D
         modeBanner.AddThemeColorOverride("font_outline_color", Colors.Black);
         modeBanner.AddThemeConstantOverride("outline_size", 5);
         layer.AddChild(modeBanner);
+
         BuildKeycaps();
 
         // Action: the kind of stroke this motion is (each saved as its own file).
-        box.AddChild(Heading("ACTION"));
+        box = Section(root, "ACTION  (which stroke)", "action", true);
         var actionRow = new HBoxContainer();
         actionPicker = new OptionButton { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, FitToLongestItem = false, ClipText = true, CustomMinimumSize = new Vector2(120f, 0f) };
         foreach (StrokeActions.Action a in StrokeActions.All)
@@ -1642,9 +1687,9 @@ public partial class PoseLab : Node3D
         actionNotes = Small("");
         actionNotes.AddThemeColorOverride("font_color", new Color(0.8f, 0.85f, 0.95f));
         box.AddChild(actionNotes);
-        box.AddChild(new HSeparator());
 
         // Part.
+        box = Section(root, "PART  (the picked joint)", "part", true);
         var partRow = new HBoxContainer();
         partRow.AddChild(new Label { Text = "Part" });
         partPicker = new OptionButton { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, FitToLongestItem = false, ClipText = true, CustomMinimumSize = new Vector2(120f, 0f) };
@@ -1677,10 +1722,9 @@ public partial class PoseLab : Node3D
 
         checks = Small("");
         box.AddChild(checks);
-        box.AddChild(new HSeparator());
 
         // Steps.
-        box.AddChild(Heading("STEPS"));
+        box = Section(root, "STEPS", "steps", true);
         stepList = new ItemList { CustomMinimumSize = new Vector2(0f, 130f), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         stepList.ItemSelected += i => PickStep((int)i);
         box.AddChild(stepList);
@@ -1692,21 +1736,63 @@ public partial class PoseLab : Node3D
         stepTime = new SpinBox { MinValue = 0.02, MaxValue = 5, Step = 0.01, Value = 0.3, CustomMinimumSize = new Vector2(80f, 0f) };
         nameRow.AddChild(stepTime);
         box.AddChild(nameRow);
-        var stepButtons = new HBoxContainer();
+        var stepButtons = new HFlowContainer();
         stepButtons.AddChild(MakeButton("Add as new step", AddStep));
         stepButtons.AddChild(MakeButton("Overwrite step", OverwriteStep));
         box.AddChild(stepButtons);
-        var stepButtons2 = new HBoxContainer();
+        var stepButtons2 = new HFlowContainer();
         stepButtons2.AddChild(MakeButton("Delete", DeleteStep));
         stepButtons2.AddChild(MakeButton("Move up", () => MoveStep(-1)));
         stepButtons2.AddChild(MakeButton("Move down", () => MoveStep(1)));
         stepButtons2.AddChild(MakeButton("Insert between", InsertBetween));
         stepButtons2.AddChild(MakeButton("Duplicate", DuplicateStep));
         box.AddChild(stepButtons2);
-        // How the swing goes through the ball: the moves into the contact and the finish are
-        // timed for it, no steps to add.
+        // A big turn of the racket on the move into the picked step: one turn the short way round
+        // rather than each angle on its own (the pose check's fix sets it where that eases the wrist).
+        shortTurnBox = new CheckBox { Text = "racket turns the short way into this step" };
+        shortTurnBox.AddThemeFontSizeOverride("font_size", 12);
+        shortTurnBox.TooltipText = "For a big turn of the racket between two steps (a serve swinging round under the ball): it turns as one, the shortest way, "
+            + "instead of each angle moving on its own, which can take the wrist round the long way past its range.";
+        shortTurnBox.Toggled += on =>
+        {
+            if (syncing || step < 1 || step >= sequence.Steps.Count)
+                return;
+            sequence.Steps[step].ShortTurn = on;
+            RefreshSteps();
+            Status(on ? $"step {step + 1}: the racket turns the short way round on the move into it" : $"step {step + 1}: each racket angle moves on its own into it");
+        };
+        box.AddChild(shortTurnBox);
+        // The contact: the focus of a stroke. How the racket goes through the ball (finish) and the
+        // spin it is shaped for, with what the game's contact physics makes of it.
+        box = Section(root, "CONTACT  (racket meets ball)", "contact", true, focus: true);
+        contactLine = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        contactLine.AddThemeFontSizeOverride("font_size", 16);
+        box.AddChild(contactLine);
+        contactDetail = Small("");
+        contactDetail.AddThemeColorOverride("font_color", new Color(0.85f, 0.82f, 0.75f));
+        box.AddChild(contactDetail);
+        var spinRow = new HBoxContainer();
+        var spinName = Small("Spin");
+        spinName.SizeFlagsHorizontal = Control.SizeFlags.Fill;
+        spinName.CustomMinimumSize = new Vector2(48f, 0f);
+        spinRow.AddChild(spinName);
+        spinPicker = new OptionButton { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, FitToLongestItem = false, ClipText = true, CustomMinimumSize = new Vector2(120f, 0f) };
+        spinPicker.AddItem("as made (your path)");
+        spinPicker.SetItemTooltip(0, "the racket's path into the ball as your steps have it");
+        spinPicker.AddItem("no spin: hit through the middle");
+        spinPicker.SetItemTooltip(1, "the path square to the face, straight through the ball's middle: all push, a fast 'dead' ball with next to no spin");
+        spinPicker.AddItem("light spin: half brush");
+        spinPicker.SetItemTooltip(2, "the path at 40° to the face: half push, half brush");
+        spinPicker.AddItem("heavy spin: thin brush");
+        spinPicker.SetItemTooltip(3, "the path at 10° to the face, grazing the ball: much spin, a slower ball");
+        spinPicker.ItemSelected += i => PickSpin((PoseSequence.SpinLevel)(int)i);
+        spinRow.AddChild(spinPicker);
+        box.AddChild(spinRow);
         var finishRow = new HBoxContainer();
-        finishRow.AddChild(Small("Finish"));
+        var finishName = Small("Finish");
+        finishName.SizeFlagsHorizontal = Control.SizeFlags.Fill;
+        finishName.CustomMinimumSize = new Vector2(48f, 0f);
+        finishRow.AddChild(finishName);
         finishPicker = new OptionButton { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, FitToLongestItem = false, ClipText = true, CustomMinimumSize = new Vector2(120f, 0f) };
         finishPicker.AddItem("normal");
         finishPicker.SetItemTooltip(0, "speeds up steadily into the ball, then follows through to the finish pose");
@@ -1717,11 +1803,44 @@ public partial class PoseLab : Node3D
         finishPicker.ItemSelected += i => PickFinish((PoseSequence.FinishStyle)(int)i);
         finishRow.AddChild(finishPicker);
         box.AddChild(finishRow);
-        box.AddChild(new HSeparator());
+        var brushRow = new HBoxContainer();
+        var brushName = Small("Brush");
+        brushName.SizeFlagsHorizontal = Control.SizeFlags.Fill;
+        brushName.CustomMinimumSize = new Vector2(48f, 0f);
+        brushRow.AddChild(brushName);
+        brushPicker = new OptionButton { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, FitToLongestItem = false, ClipText = true, CustomMinimumSize = new Vector2(120f, 0f) };
+        brushPicker.AddItem("the way your path goes");
+        brushPicker.AddItem("topspin: brush up the back");
+        brushPicker.AddItem("backspin: brush down, under");
+        brushPicker.AddItem("sidespin: brush across to the left");
+        brushPicker.AddItem("sidespin: brush across to the right");
+        brushPicker.TooltipText = "Which way the racket brushes the ball, which sets the kind of spin; Spin sets how much. Both shape the move into the contact and out of it.";
+        brushPicker.ItemSelected += i =>
+        {
+            if (!sequence.HasFinish)
+            {
+                brushPicker.Selected = 0;
+                Status("the brush needs the contact step with a step before and after it: \"Make the finish step\" makes them");
+                return;
+            }
+            sequence.ContactBrush = (PoseSequence.Brush)(int)i;
+            PickSpin(sequence.ContactSpin);
+        };
+        brushRow.AddChild(brushPicker);
+        box.AddChild(brushRow);
+        lockBox = new CheckBox { Text = "the picked step meets the ball (blade kept on the ball)" };
+        lockBox.AddThemeFontSizeOverride("font_size", 12);
+        lockBox.TooltipText = "The blade is brought to the ball (the arm, hand and wrist with it) and kept on it, touching anywhere on the face, whatever joint you move in this step. Move the ball (T) and the blade follows.";
+        lockBox.Toggled += LockContact;
+        box.AddChild(lockBox);
+        var contactButtons = new HFlowContainer();
+        contactButtons.AddChild(MakeButton("Make the finish step", MakeFinish));
+        contactButtons.AddChild(MakeButton("▶ Play through the contact", PlayContact));
+        box.AddChild(contactButtons);
 
         // Play.
-        box.AddChild(Heading("PLAY"));
-        var playRow = new HBoxContainer();
+        box = Section(root, "PLAY", "play", true);
+        var playRow = new HFlowContainer();
         playButton = MakeButton("▶ Play", TogglePlay);
         playRow.AddChild(playButton);
         playRow.AddChild(Small("speed"));
@@ -1743,10 +1862,9 @@ public partial class PoseLab : Node3D
         box.AddChild(timeline);
         timeLabel = Small("");
         box.AddChild(timeLabel);
-        box.AddChild(new HSeparator());
 
         // Power: what the racket gives the ball, for this player's weight.
-        box.AddChild(Heading("POWER & CONTACT  (racket into ball)"));
+        box = Section(root, "POWER & CONTACT PHYSICS  (details)", "power", false);
         SpinBox Number(HFlowContainer row, string label, double min, double max, double step, double value)
         {
             var name = new Label { Text = label, VerticalAlignment = VerticalAlignment.Center };
@@ -1784,10 +1902,9 @@ public partial class PoseLab : Node3D
         powerText = Small("");
         powerText.AddThemeColorOverride("font_color", new Color(0.8f, 0.85f, 0.95f));
         box.AddChild(powerText);
-        box.AddChild(new HSeparator());
 
         // File.
-        box.AddChild(Heading("SAVE / LOAD  (res://Poses/<name>.json)"));
+        box = Section(root, "SAVE / LOAD  (res://Poses/<name>.json)", "file", true);
         var saveRow = new HBoxContainer();
         sequenceName = new LineEdit { Text = sequence.Name, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         saveRow.AddChild(sequenceName);
@@ -1799,11 +1916,655 @@ public partial class PoseLab : Node3D
         loadRow.AddChild(loadPicker);
         loadRow.AddChild(MakeButton("Load", Load));
         box.AddChild(loadRow);
-        status = Small("");
-        box.AddChild(status);
+        box = Section(root, "KEYS", "keys", false);
         box.AddChild(Small("Keys: Q carry, W point only, E rotate joint, R whole body (, . turn it), T ball; - / + centre of gravity down / up; J L I K body left / right / to table / back over the feet (shift: step, feet too); arrows / PgUp PgDn move the part (shift ×5), Space play, Ctrl+Z undo, Ctrl+S save, Ctrl+D duplicate step, 1-4 views"
                            + (InGame ? $", {ToggleKey} back to the game." : ".")));
     }
+
+    // A foldable section of the panel: its title (a button: click to fold or open it, remembered
+    // in user://pose_lab_panel.cfg) over its body, on a slightly lighter card; the focus card
+    // (the contact) framed in orange. Returns the body to fill.
+    readonly List<(Button Title, Control Body, string Key, string Text)> sections = new();
+    const string PanelStateFile = "user://pose_lab_panel.cfg";
+    ConfigFile panelState;
+
+    VBoxContainer Section(VBoxContainer root, string title, string key, bool openAtFirst, bool focus = false)
+    {
+        if (panelState == null)
+        {
+            panelState = new ConfigFile();
+            panelState.Load(PanelStateFile); // none yet: every section as it opens at first
+        }
+        bool open = (bool)panelState.GetValue("open", key, openAtFirst);
+        var card = new PanelContainer();
+        card.AddThemeStyleboxOverride("panel", new StyleBoxFlat
+        {
+            BgColor = focus ? new Color(0.17f, 0.12f, 0.07f) : new Color(0.12f, 0.13f, 0.16f),
+            BorderColor = new Color(1f, 0.6f, 0.2f),
+            BorderWidthLeft = focus ? 3 : 0, BorderWidthRight = focus ? 3 : 0, BorderWidthTop = focus ? 3 : 0, BorderWidthBottom = focus ? 3 : 0,
+            CornerRadiusTopLeft = 4, CornerRadiusTopRight = 4, CornerRadiusBottomLeft = 4, CornerRadiusBottomRight = 4,
+            ContentMarginLeft = 8, ContentMarginRight = 8, ContentMarginTop = 4, ContentMarginBottom = 6,
+        });
+        root.AddChild(card);
+        var inside = new VBoxContainer();
+        inside.AddThemeConstantOverride("separation", 4);
+        card.AddChild(inside);
+        var header = new Button { Flat = true, Alignment = HorizontalAlignment.Left, FocusMode = Control.FocusModeEnum.None };
+        header.AddThemeFontSizeOverride("font_size", 15);
+        Color colour = focus ? new Color(1f, 0.65f, 0.25f) : new Color(1f, 0.85f, 0.3f);
+        foreach (string state in new[] { "font_color", "font_hover_color", "font_pressed_color", "font_focus_color" })
+            header.AddThemeColorOverride(state, colour);
+        inside.AddChild(header);
+        var body = new VBoxContainer { Visible = open };
+        body.AddThemeConstantOverride("separation", 4);
+        inside.AddChild(body);
+        var entry = (header, (Control)body, key, title);
+        sections.Add(entry);
+        ShowFold(entry);
+        header.Pressed += () =>
+        {
+            body.Visible = !body.Visible;
+            ShowFold(entry);
+            SaveFolds();
+        };
+        return body;
+    }
+
+    static void ShowFold((Button Title, Control Body, string Key, string Text) s) =>
+        s.Title.Text = (s.Body.Visible ? "▾  " : "▸  ") + s.Text;
+
+    void FoldAll(bool fold)
+    {
+        foreach (var s in sections)
+        {
+            s.Body.Visible = !fold;
+            ShowFold(s);
+        }
+        SaveFolds();
+    }
+
+    void SaveFolds()
+    {
+        foreach (var s in sections)
+            panelState.SetValue("open", s.Key, s.Body.Visible);
+        panelState.Save(PanelStateFile);
+    }
+
+    // The focus bar: what is being edited now (the action, the step, the part, the mode).
+    Label focusLabel, contactLine, contactDetail;
+    OptionButton spinPicker;
+    CheckBox shortTurnBox;
+    string focusShown;
+
+    void UpdateFocus()
+    {
+        if (focusLabel == null)
+            return;
+        // The action, when the motion open is that action's own (not one loaded under another name).
+        string action = actionPicker != null && actionPicker.Selected >= 0 && StrokeActions.All[actionPicker.Selected] is { } a
+                        && (sequence.Name == a.Id || sequenceName?.Text == a.Id) ? StrokeActions.Label(a) : "";
+        string motion = sequenceName != null && sequenceName.Text != "" ? sequenceName.Text : "(unnamed)";
+        string stepText = step >= 0 && step < sequence.Steps.Count
+            ? $"step {step + 1} of {sequence.Steps.Count}: \"{sequence.Steps[step].Name}\"{(step == sequence.ContactIndex ? "  ● CONTACT" : "")}"
+            : $"{sequence.Steps.Count} steps, none picked";
+        string modeText = Modes.FirstOrDefault(m => m.Mode == mode).Label ?? mode.ToString();
+        string locked = ContactLocked
+            ? $"\n◉ CONTACT LOCK: this step meets the ball; the blade stays on it whatever you move ({lockNote}{(atFullReach.Any(r => r.StartsWith("right arm")) ? "; OUT OF REACH: the arm is straight" : "")}). Overwrite step to keep a change."
+            : "";
+        string text = $"▶ {motion}{(action != "" ? $"   ({action})" : "")}\n{stepText}\npart: {Parts[part].Name}   ·   drag: {modeText}{locked}";
+        if (text == focusShown)
+            return;
+        focusShown = text;
+        focusLabel.Text = text;
+    }
+
+
+
+    // ---------------------------------------------------------------- contact: spin
+
+    // The face the racket hits with at the contact (own frame, pointing out of the rubber towards
+    // the ball), found as the game finds it (Opponent.AimServeMotion): the face on the ball's side
+    // when the step shows the ball off the blade's plane, else the face the racket moves towards
+    // (path: its move into the contact), else the side's own rubber (forehand or backhand).
+    Vector3 HittingFace(Dictionary<string, float> values, Vector3 path = default)
+    {
+        Dictionary<string, float> keep = pose;
+        pose = values;
+        Vector3 z = RacketBasis.Z.Normalized();
+        bool forehand = Forehand;
+        pose = keep;
+        Vector3 ball = new(values.GetValueOrDefault("ball.x"), values.GetValueOrDefault("ball.y"), values.GetValueOrDefault("ball.z"));
+        // The ball decides when the step has it: shown (a serve), or on the blade (a step meeting it).
+        bool hasBall = values.GetValueOrDefault("ball.show") > 0.5f || ball.DistanceTo(PoseRig.RacketAt(values)) < 0.12f;
+        float side = hasBall ? z.Dot(ball - PoseRig.RacketAt(values)) : 0f;
+        if (Mathf.Abs(side) < 0.005f)
+            side = z.Dot(path);
+        if (Mathf.Abs(side) < 1e-4f)
+            side = z.Z; // the face towards the table
+        return side >= 0f ? z : -z;
+    }
+
+    // A spin level for the contact: the move into it and out of it turned about the contact
+    // point so the racket meets the face at the level's angle (PoseSequence.BrushAngle), brushing
+    // the way the path did (up, down or across; up when it went straight in), each move as long
+    // as it was. The path as made is kept on the contact step, so "as made" puts it back.
+    void PickSpin(PoseSequence.SpinLevel level) => PickSpin(level, false);
+
+    void PickSpin(PoseSequence.SpinLevel level, bool keepFinishLength)
+    {
+        if (!sequence.HasFinish)
+        {
+            spinPicker.Selected = 0;
+            Status("the spin needs a step named \"contact...\" with a step before it and one after it (the finish)");
+            return;
+        }
+        int c = sequence.ContactIndex;
+        PoseSequence.Step before = sequence.Steps[c - 1], contact = sequence.Steps[c], after = sequence.Steps[c + 1];
+        // A serve's contact found as the step nearest the ball is named for it, so it stays this
+        // step once the moves round it change (the game looks for a step named "contact" first);
+        // a step marked as meeting the ball is the contact already.
+        string renamed = null;
+        if (!contact.Meets && !contact.Name.ToLowerInvariant().Contains("contact"))
+            contact.Name = renamed = "contact: " + contact.Name;
+        static void Put(Dictionary<string, float> v, Vector3 p)
+        {
+            v["racket.x"] = p.X;
+            v["racket.y"] = p.Y;
+            v["racket.z"] = p.Z;
+        }
+        if (level == PoseSequence.SpinLevel.AsShaped && sequence.ContactBrush != PoseSequence.Brush.AsMade)
+            level = PoseSequence.SpinLevel.Light; // a brush asked for needs an amount: light to start with
+        if (contact.Unshaped is { Length: 6 } u)
+        {
+            Put(before.Values, new Vector3(u[0], u[1], u[2]));
+            Put(after.Values, new Vector3(u[3], u[4], u[5]));
+            contact.Unshaped = null;
+        }
+        sequence.ContactSpin = level;
+        if (level != PoseSequence.SpinLevel.AsShaped)
+        {
+            Vector3 b = PoseRig.RacketAt(before.Values), at = PoseRig.RacketAt(contact.Values), a = PoseRig.RacketAt(after.Values);
+            contact.Unshaped = new[] { b.X, b.Y, b.Z, a.X, a.Y, a.Z };
+            Vector3 n = HittingFace(contact.Values, at - b), into = at - b;
+            if (into.Length() < 0.05f)
+                into = n * 0.3f; // no backswing yet: come in from behind the face
+            // The brush along the face: for the spin the brush picker asks, the way that gives it
+            // with this face, whatever its tilt (the rubber drags the ball's touching point along,
+            // spinning it about n x brush, so brushing along n x axis spins it about the axis); the
+            // ball going forward (+ Z): topspin about + X, backspin about - X, brushed across to
+            // the left about - Y, to the right about + Y. As made: the way the path goes.
+            Vector3 Along(Vector3 way) => way - n * n.Dot(way);
+            Vector3 brush = sequence.ContactBrush switch
+            {
+                PoseSequence.Brush.Top => n.Cross(Vector3.Right),
+                PoseSequence.Brush.Back => n.Cross(Vector3.Left),
+                PoseSequence.Brush.SideLeft => n.Cross(Vector3.Down),
+                PoseSequence.Brush.SideRight => n.Cross(Vector3.Up),
+                _ => Along(into),
+            };
+            if (brush.Length() < 1e-3f)
+                brush = Vector3.Up - n * n.Dot(Vector3.Up); // straight in: brush up
+            if (brush.Length() < 1e-3f)
+                brush = Vector3.Right - n * n.Dot(Vector3.Right);
+            float angle = Mathf.DegToRad(PoseSequence.BrushAngle(level));
+            Vector3 way = (brush.Normalized() * Mathf.Cos(angle) + n * Mathf.Sin(angle)).Normalized();
+            Put(before.Values, at - way * Mathf.Max(into.Length(), 0.05f));
+            Put(after.Values, at + way * Mathf.Max(a.DistanceTo(at), keepFinishLength ? 0.05f : 0.05f));
+            EaseMoved(before, after);
+        }
+        if (step == c - 1 || step == c + 1)
+            PickStep(step); // the picked step shown as it is now
+        RefreshSteps();
+        UpdateContact();
+        Status((renamed != null ? $"step {c + 1} renamed \"{renamed}\" (the contact, kept there); " : "")
+            + (level == PoseSequence.SpinLevel.AsShaped
+            ? "spin: your path into the ball, as you made it"
+            : $"spin: the move into the contact and out of it turned to {PoseSequence.BrushAngle(level):F0}° to the face (the contact pose kept): {ContactSummary()}"));
+        PlayContact();
+    }
+
+    // The steps whose racket the spin moved: the waist and hand turned to ease the wrist there
+    // (EaseWrist, the racket kept where it is), as a player lines the arm up behind the racket,
+    // so the swing into and out of the contact does not twist the wrist past its range.
+    void EaseMoved(params PoseSequence.Step[] moved)
+    {
+        Dictionary<string, float> keep = pose;
+        posingOther = true;
+        foreach (PoseSequence.Step s in moved)
+        {
+            pose = new Dictionary<string, float>(s.Values);
+            Apply();
+            EaseWrist();
+            s.Values = new Dictionary<string, float>(pose);
+        }
+        posingOther = false;
+        pose = keep;
+        Apply();
+    }
+
+    void SyncShortTurn()
+    {
+        if (shortTurnBox == null)
+            return;
+        bool has = step >= 1 && step < sequence.Steps.Count;
+        syncing = true;
+        shortTurnBox.ButtonPressed = has && sequence.Steps[step].ShortTurn;
+        syncing = false;
+        shortTurnBox.Disabled = !has;
+    }
+
+    // ---------------------------------------------------------------- contact lock
+
+    // The blade face (paddle space): the rubber's surface this far from the middle of the blade,
+    // inside an ellipse round the head; a ball touching it anywhere there counts.
+    const float FaceOut = 0.0064f;
+    static readonly Vector2 HeadCentre = new(0f, 0.012f), HeadHalf = new(0.075f, 0.078f);
+    const float EdgeRoom = 0.006f; // the ball's touch kept this far inside the edge
+
+    // The picked step is the one that meets the ball, and its pose is being edited (not played).
+    bool ContactLocked => !playing && !scrubbed && !posingOther && step >= 0 && step < sequence.Steps.Count && sequence.Steps[step].Meets;
+    // Set while the lab poses something other than the picked step (easing other steps, a
+    // template's starting motion, the pose check): the lock is the picked step's alone.
+    bool posingOther;
+    bool scrubbed;            // the pose shown is a moment of the playback, not a step
+    string lockNote = "";     // what the lock did last, for the focus bar
+
+    // Moves the racket (its turn kept) so the ball touches the hitting face: the face on the
+    // ball's side, the touch where the ball is over the face or, past the edge, the nearest point
+    // inside it. Returns whether it moved.
+    bool KeepOnBall()
+    {
+        Vector3 ballInPaddle = paddle.GlobalTransform.AffineInverse() * W(BallAt);
+        // The face towards the table (the ball is struck towards the other side), so a ball moved
+        // through the blade does not end up behind it; a face lying nearly flat (pointing up or
+        // down) takes the side the ball is on.
+        float towardsTable = RacketBasis.Z.Z;
+        float side = Mathf.Abs(towardsTable) > 0.2f ? Mathf.Sign(towardsTable)
+            : Mathf.Abs(ballInPaddle.Z) > 0.002f ? Mathf.Sign(ballInPaddle.Z) : 1f;
+        Vector2 onFace = new(ballInPaddle.X, ballInPaddle.Y);
+        Vector2 rel = (onFace - HeadCentre) / (HeadHalf - Vector2.One * EdgeRoom);
+        if (rel.Length() > 1f)
+            onFace = HeadCentre + rel.Normalized() * (HeadHalf - Vector2.One * EdgeRoom);
+        var wanted = new Vector3(onFace.X, onFace.Y, side * (FaceOut + Ball.Radius));
+        Vector3 shift = paddle.GlobalBasis * (ballInPaddle - wanted); // the paddle moved this much puts the ball there
+        float fromMiddle = (onFace - HeadCentre).Length() * 100f;
+        lockNote = $"touching {fromMiddle:F1} cm from the middle of the blade";
+        if (shift.Length() < 0.0005f)
+            return false;
+        Vector3 to = RacketAt + toWorld.Inverse() * shift;
+        Hold("racket.x", to.X);
+        Hold("racket.y", to.Y);
+        Hold("racket.z", to.Z);
+        return true;
+    }
+
+    // Marks the picked step as the one meeting the ball (or unmarks it). Marking it: a ball not
+    // yet placed in the step (a stroke's, without the serve's ball) is put on the middle of the
+    // hitting face; otherwise the blade is brought to the ball, the arm, hand and wrist with it
+    // (and the wrist eased, the blade kept on the ball). The step keeps the result.
+    void LockContact(bool on)
+    {
+        if (syncing)
+            return;
+        if (step < 0 || step >= sequence.Steps.Count)
+        {
+            Status("pick the step that meets the ball first");
+            SyncLock();
+            return;
+        }
+        PushUndo(true);
+        foreach (PoseSequence.Step st in sequence.Steps)
+            st.Meets = false;
+        if (on)
+        {
+            sequence.Steps[step].Meets = true;
+            scrubbed = false;
+            bool ballPlaced = V("ball.show") > 0.5f || BallAt.DistanceTo(RacketAt) < 0.25f;
+            if (!ballPlaced)
+            {
+                // Out from the middle of the face that points towards the table (+ Z, own frame):
+                // the ball is struck towards the other side, whichever rubber that is.
+                float side = RacketBasis.Z.Z >= 0f ? 1f : -1f;
+                Vector3 there = O(paddle.GlobalTransform * new Vector3(HeadCentre.X, HeadCentre.Y, side * (FaceOut + Ball.Radius)));
+                Hold("ball.x", there.X);
+                Hold("ball.y", there.Y);
+                Hold("ball.z", there.Z);
+            }
+            Apply();
+            EaseWrist();
+            Apply();
+            sequence.Steps[step].Values = new Dictionary<string, float>(pose);
+            Status($"step {step + 1} meets the ball: the blade is on it ({lockNote}); move any joint and it stays on the ball. "
+                + (ballPlaced ? "" : "The ball was put on the middle of the face: move it (T) to where the stroke meets it, the blade follows."));
+        }
+        else
+        {
+            Apply();
+            Status($"step {step + 1} no longer locked to the ball");
+        }
+        RefreshSteps();
+    }
+
+    void SyncLock()
+    {
+        if (lockBox == null)
+            return;
+        syncing = true;
+        lockBox.ButtonPressed = step >= 0 && step < sequence.Steps.Count && sequence.Steps[step].Meets;
+        syncing = false;
+        lockBox.Disabled = step < 0 || step >= sequence.Steps.Count;
+    }
+
+    CheckBox lockBox;
+    OptionButton brushPicker;
+
+    // The finish worked out for the contact: the step after it (made if there is none, and a
+    // backswing before it too) placed along the path the brush and spin decide, from the contact
+    // pose, the wrist eased there. The kind of spin from the brush (up for topspin, down and under
+    // for backspin, across for sidespin), how much from the amount (as Spin: the path's angle to
+    // the face); the follow-through the longer the more it brushes.
+    void MakeFinish()
+    {
+        int c = sequence.ContactIndex;
+        if (c < 0)
+        {
+            if (step < 0 || step >= sequence.Steps.Count)
+            {
+                Status("pick the step that meets the ball, tick \"meets the ball\", then make the finish");
+                return;
+            }
+            sequence.Steps[step].Meets = true;
+            c = step;
+        }
+        PoseSequence.Step contact = sequence.Steps[c];
+        if (c == 0)
+        {
+            sequence.Steps.Insert(0, new PoseSequence.Step { Name = "backswing", Duration = 0f, Values = new Dictionary<string, float>(contact.Values) });
+            contact.Duration = Mathf.Max(contact.Duration, 0.25f);
+            c = 1;
+        }
+        bool made = c + 1 >= sequence.Steps.Count;
+        if (made)
+            sequence.Steps.Insert(c + 1, new PoseSequence.Step { Name = "finish", Duration = 0.2f, Values = new Dictionary<string, float>(contact.Values) });
+        PoseSequence.SpinLevel level = sequence.ContactSpin == PoseSequence.SpinLevel.AsShaped ? PoseSequence.SpinLevel.Light : sequence.ContactSpin;
+        PoseSequence.Step after = sequence.Steps[c + 1];
+        // The follow-through: a hit through the middle stops soonest, a thin brush runs on longest.
+        float length = level switch { PoseSequence.SpinLevel.None => 0.22f, PoseSequence.SpinLevel.Light => 0.3f, _ => 0.38f };
+        Vector3 at = PoseRig.RacketAt(contact.Values);
+        after.Values["racket.x"] = at.X;
+        after.Values["racket.y"] = at.Y;
+        after.Values["racket.z"] = at.Z + length; // a start for the reshape below, which turns it
+        after.Unshaped = null;
+        contact.Unshaped = null;
+        step = c;
+        PickSpin(level, keepFinishLength: true);
+        Status($"{(made ? "finish step made" : "finish step worked out")} for {BrushWords(sequence.ContactBrush)}, {level.ToString().ToLower()} spin asked; the contact gives {ContactSummary()}");
+    }
+
+    static string BrushWords(PoseSequence.Brush b) => b switch
+    {
+        PoseSequence.Brush.Top => "topspin (brushing up)",
+        PoseSequence.Brush.Back => "backspin (brushing down, under the ball)",
+        PoseSequence.Brush.SideLeft => "sidespin (brushing across to the left)",
+        PoseSequence.Brush.SideRight => "sidespin (brushing across to the right)",
+        _ => "the brush your path makes",
+    };
+
+    void PlayContact()
+    {
+        if (!sequence.HasFinish)
+        {
+            Status("needs a step named \"contact...\" with a step before it and one after it");
+            return;
+        }
+        playTime = sequence.StartOf(Mathf.Max(sequence.ContactIndex - 1, 0));
+        playing = true;
+        playButton.Text = "■ Stop";
+    }
+
+    // What the contact makes of the ball, worked out with the game's own hit (Ball.Analyse): the
+    // racket at its speed at the ball (the swing's, PoseSequence.SwingInfo) along its path into the
+    // contact step, the hitting face as the contact step has it. The ball is a slow one without
+    // spin (2 m/s into the face; for a serve, falling from the toss), so what shows is the spin
+    // the stroke itself makes: a ball coming in a rally adds its own (POWER & CONTACT PHYSICS).
+    (Ball.RacketContact Contact, Vector3 Racket, Vector3 Face, float Angle)? ContactResult()
+    {
+        if (!sequence.HasFinish || sequence.SwingInfo() is not PoseSequence.Swing swing)
+            return null;
+        int c = sequence.ContactIndex;
+        Vector3 b = PoseRig.RacketAt(sequence.Steps[c - 1].Values), at = PoseRig.RacketAt(sequence.Steps[c].Values);
+        Vector3 n = HittingFace(sequence.Steps[c].Values, at - b);
+        Vector3 racket = (at - b).Normalized() * swing.ContactSpeed;
+        Vector3 coming = IsServe ? new Vector3(0f, -2f, 0f) : -n * 2f;
+        var ball = new BallState(at + n * (Ball.Radius + 0.006f), coming, Vector3.Zero);
+        float weight = weightBox != null ? (float)weightBox.Value : Human.DefaultBodyMass;
+        Ball.RacketContact result = Ball.Analyse(ball, n, racket, Ball.RubberGrip, weight);
+        float angle = Mathf.RadToDeg(Mathf.Asin(Mathf.Clamp(racket.Normalized().Dot(n), -1f, 1f)));
+        return (result, racket, n, angle);
+    }
+
+    // Why no legal serve can be played from the serve's contact (the ball where the contact step
+    // has it), or null: worked out with the game's serve search, kept until the ball there moves.
+    Vector3 serveCheckedAt = new(float.NaN, 0f, 0f);
+    string serveImpossible;
+
+    string ServeImpossibleFrom()
+    {
+        Dictionary<string, float> v = sequence.Steps[sequence.ContactIndex].Values;
+        var at = new Vector3(v.GetValueOrDefault("ball.x"), v.GetValueOrDefault("ball.y"), v.GetValueOrDefault("ball.z"));
+        if (at.IsEqualApprox(serveCheckedAt))
+            return serveImpossible;
+        serveCheckedAt = at;
+        float above = (at.Y - TableSpec.Height) * 100f, behind = (-TableSpec.HalfLength - at.Z) * 100f;
+        serveImpossible = behind < 0f ? $"the ball is met {-behind:F0} cm over the table; a serve is struck from behind the end line"
+            : above < 0f ? $"the ball is met {-above:F0} cm below the table's height; a serve is struck above it"
+            : ShotSolver.CanServeFrom(at, Vector3.Zero) ? null
+            : $"met {above:F0} cm above the table and {behind:F0} cm behind the end line, it cannot bounce on your side and still clear the net: meet it higher or nearer the table";
+        return serveImpossible;
+    }
+
+    // A serve that rises more than this after its bounce on the receiver's side, or crosses the
+    // net this far over it, sits up to be attacked (a good short serve bounces 10-20 cm and skims
+    // the net by a few cm).
+    const float HighServeBounce = 0.3f, HighServeOverNet = 0.2f;
+
+    // The serve the game would play from the contact (Opponent.Serve): its spin as the level asks
+    // (or the NPC's own mix), aimed short and low over the receiver's half; of those that are
+    // legal, the lowest. How far over the net it passes and how high it bounces on the other side
+    // (metres), with why it is high. Kept until the ball at the contact or the level changes.
+    (Vector3 At, PoseSequence.SpinLevel Level, bool Under) gameServeKey;
+    (float OverNet, float Bounce, float Low, float High, string Why)? gameServe;
+
+    (float OverNet, float Bounce, float Low, float High, string Why)? GameServe()
+    {
+        int c = sequence.ContactIndex;
+        Dictionary<string, float> v = sequence.Steps[c].Values;
+        var at = new Vector3(v.GetValueOrDefault("ball.x"), v.GetValueOrDefault("ball.y"), v.GetValueOrDefault("ball.z"));
+        PoseSequence.SpinLevel level = sequence.ContactSpin;
+        // Underspin as the game reads the motion (ServeMotion): an open face, or the racket coming down.
+        bool under = v.GetValueOrDefault("racket.open") > 45f || PoseRig.RacketAt(v).Y < PoseRig.RacketAt(sequence.Steps[c - 1].Values).Y;
+        var key = (at, level, under);
+        if (gameServe != null && key.at.IsEqualApprox(gameServeKey.At) && key.level == gameServeKey.Level && key.under == gameServeKey.Under)
+            return gameServe;
+        gameServeKey = key;
+        float share = level switch
+        {
+            PoseSequence.SpinLevel.None => 0.04f,
+            PoseSequence.SpinLevel.Light => 0.42f,
+            PoseSequence.SpinLevel.Heavy => 1.3f,
+            _ => under ? 1.2f : 0.8f,
+        };
+        float revs = Human.ServeSpin(target?.Skill ?? 0.6f) * share * Mathf.Tau;
+        var spin = new Vector3(under ? -revs : revs, 0f, 0f); // the ball going +Z: + X is topspin
+        if (ServeFrom(at, spin) is not { } here)
+            return gameServe = null;
+        string why = "";
+        if (here.Bounce > HighServeBounce || here.OverNet > HighServeOverNet)
+        {
+            // What would bring it down: the contact a little higher, or nearer the table (still
+            // behind the end line), tried with the same serve search; the best that helps is named.
+            var tries = new List<(Vector3 Move, string Words)>
+            {
+                (new Vector3(0f, 0.1f, 0f), "10 cm higher"), (new Vector3(0f, 0.2f, 0f), "20 cm higher"),
+                (new Vector3(0f, -0.08f, 0f), "8 cm lower"),
+            };
+            float room = -TableSpec.HalfLength - 0.01f - at.Z; // how far it can come nearer the table
+            if (room > 0.04f)
+                tries.Add((new Vector3(0f, 0f, Mathf.Min(room, 0.1f)), $"{Mathf.Min(room, 0.1f) * 100f:F0} cm nearer the table"));
+            (string Words, float OverNet, float Bounce)? better = null;
+            foreach (var (move, words) in tries)
+            {
+                Vector3 there = at + move;
+                if (there.Y < TableSpec.Height + 0.05f || ServeFrom(there, spin) is not { } f)
+                    continue;
+                if (f.Bounce + 0.05f < here.Bounce && (better == null || f.Bounce < better.Value.Bounce))
+                    better = (words, f.OverNet, f.Bounce);
+            }
+            float above = (at.Y - TableSpec.Height) * 100f;
+            string cause = better?.Words switch
+            {
+                string w when w.Contains("higher") => $"Met only {above:F0} cm above the table, the ball has to be struck down hard so that it bounces up over the net.",
+                string w when w.Contains("lower") => $"Met {above:F0} cm above the table, the ball comes down steeply and bounces up high.",
+                _ => "Far behind the end line, the ball has a long way to go before the net.",
+            };
+            why = better is { } b
+                ? $"{cause} Meet the ball {b.Words}: over the net {b.OverNet * 100f:F0} cm, bouncing {b.Bounce * 100f:F0} cm."
+                : under && level is not PoseSequence.SpinLevel.Heavy
+                ? "With little backspin the ball does not check after its bounce: pick heavy spin to keep it low and short."
+                : "No nearby contact point does much better: brush under the ball more thinly (heavy spin), or toss lower so it falls slower.";
+        }
+        return gameServe = (here.OverNet, here.Bounce, here.Low, here.High, why);
+    }
+
+    // The game's serve from here with this spin, aimed where the game aims it (Opponent.Serve:
+    // an underspin serve 0.35-0.6 m past the net, a topspin one 0.6-1.1 m): how far over the net
+    // it passes and how high it bounces on the other side (metres), as the middle of that range
+    // gives them, with the lowest and highest bounce over it; null when none is legal.
+    static (float OverNet, float Bounce, float Low, float High)? ServeFrom(Vector3 at, Vector3 spin)
+    {
+        bool under = spin.X < 0f;
+        float[] depths = under ? new[] { 0.35f, 0.48f, 0.6f } : new[] { 0.6f, 0.85f, 1.1f };
+        var found = new List<(float OverNet, float Bounce)>();
+        foreach (float depth in depths)
+        {
+            Vector2 aim = new(0f, depth);
+            if (!ShotSolver.SearchServe(at, spin, aim, out Vector3 velocity))
+                continue;
+            var s = new BallState(at, velocity, spin);
+            float overNet = float.NaN, bounce = 0f;
+            int bounces = 0;
+            for (float t = 0f; t < 2.5f && bounces < 3; t += Ball.SubStepTime)
+            {
+                Vector3 before = s.Position;
+                BallEvent e = Ball.Step(ref s, Ball.SubStepTime, false);
+                if (float.IsNaN(overNet) && before.Z < 0f && s.Position.Z >= 0f)
+                    overNet = s.Position.Y - Ball.Radius - TableSpec.NetTop;
+                if (e == BallEvent.Table)
+                    bounces++;
+                else if (e == BallEvent.Floor)
+                    break;
+                if (bounces == 2)
+                    bounce = Mathf.Max(bounce, s.Position.Y - Ball.Radius - TableSpec.Height);
+            }
+            found.Add((overNet, bounce));
+        }
+        if (found.Count == 0)
+            return null;
+        var middle = found[found.Count / 2];
+        return (middle.OverNet, middle.Bounce, found.Min(f => f.Bounce), found.Max(f => f.Bounce));
+    }
+
+    // A serve: the motion shows the ball at the start (and tosses it).
+    bool IsServe => sequence.Steps.Count > 0 && sequence.Steps[0].Values.GetValueOrDefault("ball.show") > 0.5f;
+
+    // The spin of a ball after the contact, split along its flight: top (+) or back (-) and side
+    // (+ to the left), rev/s.
+    static (float Top, float Side) SpinParts(BallState after)
+    {
+        Vector3 flat = new(after.Velocity.X, 0f, after.Velocity.Z);
+        Vector3 across = flat.LengthSquared() > 1e-4f ? Vector3.Up.Cross(flat.Normalized()) : Vector3.Right;
+        return (after.Spin.Dot(across) / Mathf.Tau, after.Spin.Dot(Vector3.Up) / Mathf.Tau);
+    }
+
+    // Top/back and side spin together (the turn about the flight barely shows in the bounce).
+    static float SpinOf(BallState after)
+    {
+        var (top, side) = SpinParts(after);
+        return Mathf.Sqrt(top * top + side * side);
+    }
+
+    static string SpinClass(float revs) => revs < 10f ? "NO SPIN" : revs < 35f ? "LIGHT SPIN" : "HEAVY SPIN";
+
+    string ContactSummary()
+    {
+        if (ContactResult() is not { } r)
+            return "";
+        BallState after = r.Contact.After;
+        var (top, side) = SpinParts(after);
+        float total = SpinOf(after);
+        return $"{SpinClass(total).ToLower()}: {Mathf.Abs(top):F0} rev/s {(top >= 0f ? "topspin" : "backspin")}, {Mathf.Abs(side):F0} rev/s sidespin ({(side < 0f ? "brushed left" : "brushed right")}), ball {after.Velocity.Length():F1} m/s";
+    }
+
+    // The contact card: the result in large type (its colour by the spin: blue none, yellow light,
+    // orange heavy), the racket and path underneath, and the pickers as the motion has them.
+    void UpdateContact()
+    {
+        if (contactLine == null)
+            return;
+        spinPicker.Selected = (int)sequence.ContactSpin;
+        brushPicker.Selected = (int)sequence.ContactBrush;
+        spinPicker.Disabled = !sequence.HasFinish;
+        spinPicker.TooltipText = sequence.HasFinish ? "" : "needs a step named \"contact...\" with a step before it and one after it (the finish)";
+        if (!sequence.HasFinish)
+        {
+            contactLine.Text = "no contact yet";
+            contactLine.AddThemeColorOverride("font_color", new Color(0.6f, 0.62f, 0.68f));
+            contactDetail.Text = "Name a step \"contact\" (the racket at the ball), with a step before it (the backswing) and one after it (the finish): then pick the spin and the finish here.";
+            return;
+        }
+        if (ContactResult() is not { } r)
+        {
+            contactLine.Text = "the racket does not move into the contact";
+            contactLine.AddThemeColorOverride("font_color", new Color(1f, 0.7f, 0.4f));
+            contactDetail.Text = "Move the racket in the step before the contact (the backswing) away from where it meets the ball.";
+            return;
+        }
+        BallState after = r.Contact.After;
+        var (top, side) = SpinParts(after);
+        float total = SpinOf(after);
+        string cls = SpinClass(total);
+        contactLine.Text = $"{cls}  ·  " + (Mathf.Abs(top) < 1f && Mathf.Abs(side) >= 3f ? "" : $"{Mathf.Abs(top):F0} rev/s{(Mathf.Abs(top) < 1f ? "" : top > 0f ? " topspin" : " backspin")}")
+            + (Mathf.Abs(side) >= 3f ? $"{(Mathf.Abs(top) < 1f ? "" : " + ")}{Mathf.Abs(side):F0} rev/s sidespin ({(side < 0f ? "brushed left" : "brushed right")})" : "")
+            + $"  ·  {after.Velocity.Length():F1} m/s";
+        contactLine.AddThemeColorOverride("font_color", total < 10f ? new Color(0.55f, 0.8f, 1f) : total < 35f ? new Color(1f, 0.9f, 0.4f) : new Color(1f, 0.55f, 0.2f));
+        PoseSequence.SpinLevel level = sequence.ContactSpin;
+        string wanted = level switch
+        {
+            PoseSequence.SpinLevel.None when total >= 10f => "  (asked: no spin; the face's tilt still turns the ball a little)",
+            PoseSequence.SpinLevel.Light when total >= 35f => "  (asked: light; a slower swing gives less)",
+            PoseSequence.SpinLevel.Heavy when total < 35f => "  (asked: heavy; swing faster into the ball for more: a shorter move time into the contact, or the snap finish)",
+            _ => "",
+        };
+        bool serve = IsServe;
+        string serveLine = "";
+        if (serve && ServeImpossibleFrom() is string why)
+            wanted += $"  (NO LEGAL SERVE FROM HERE: {why})";
+        else if (serve && GameServe() is { } g)
+        {
+            serveLine = $"\nTHE SERVE IN THE GAME: over the net {g.OverNet * 100f:F0} cm, bouncing up {g.Bounce * 100f:F0} cm on the other side"
+                + (g.High - g.Low >= 0.03f ? $" ({g.Low * 100f:F0}-{g.High * 100f:F0} cm as it is aimed short or long)" : "");
+            if (g.Bounce > HighServeBounce || g.OverNet > HighServeOverNet)
+                serveLine += $"  ⚠ HIGH: easy to attack. {g.Why}";
+        }
+        if (r.Angle <= 0f)
+            wanted += "  (the racket is moving away from the face at the ball: it would not hit it; turn the face, or pick a spin to set the path)";
+        contactDetail.Text = $"racket {r.Racket.Length():F1} m/s at the ball, its path {r.Angle:F0}° to the face (90 = through the middle){wanted}\n"
+            + $"{(r.Contact.Grips ? $"the ball grips the rubber after {r.Contact.GripsAt * 1000f:F2} ms" : "the ball slides on the rubber the whole contact")}; "
+            + (serve ? "met as it falls from the toss" : "the spin the stroke itself makes (a ball coming in a rally adds its own: POWER & CONTACT PHYSICS)")
+            + serveLine
+            + (serve ? $"\nIN THE GAME: the NPC's serve is worked out for {(level == PoseSequence.SpinLevel.AsShaped ? "its own mix of spin (pick a level to set it)" : level == PoseSequence.SpinLevel.None ? "no spin (a dead ball)" : level.ToString().ToLower() + " spin")}, whatever the speed of this swing" : "");
+    }
+
 
     static Label Heading(string text)
     {
@@ -2162,7 +2923,11 @@ public partial class PoseLab : Node3D
             stepList.AddItem((i == 0
                 ? $"{i + 1}. {s.Name}   (start, at 0.00 s)"
                 : $"{i + 1}. {s.Name}   (+{s.Duration:F2} s, at {sequence.StartOf(i):F2} s)")
-                + (sequence.HasFinish && i == sequence.ContactIndex + 1 && sequence.Finish != PoseSequence.FinishStyle.Normal ? $"   [{sequence.Finish.ToString().ToLower()} finish]" : ""));
+                + (sequence.HasFinish && i == sequence.ContactIndex && sequence.ContactSpin != PoseSequence.SpinLevel.AsShaped ? $"   [{sequence.ContactSpin.ToString().ToLower()} spin]" : "")
+                + (sequence.HasFinish && i == sequence.ContactIndex + 1 && sequence.Finish != PoseSequence.FinishStyle.Normal ? $"   [{sequence.Finish.ToString().ToLower()} finish]" : "")
+                + (i > 0 && s.ShortTurn ? "   [short turn]" : ""));
+            if (i == sequence.ContactIndex)
+                stepList.SetItemCustomFgColor(i, new Color(1f, 0.65f, 0.25f)); // the contact stands out
         }
         if (finishPicker != null)
         {
@@ -2172,6 +2937,9 @@ public partial class PoseLab : Node3D
         }
         if (step >= 0 && step < sequence.Steps.Count)
             stepList.Select(step);
+        UpdateContact();
+        SyncShortTurn();
+        SyncLock();
         syncing = true;
         timeline.MaxValue = Mathf.Max(sequence.Length, 0.001f);
         syncing = false;
@@ -2234,7 +3002,9 @@ public partial class PoseLab : Node3D
         PoseSequence.Step s = sequence.Steps[step];
         s.Values = new Dictionary<string, float>(pose);
         s.Duration = (float)stepTime.Value;
-        if (!string.IsNullOrWhiteSpace(stepName.Text))
+        // The name box after a refresh offers the next new step's name ("step N"): that is not a
+        // new name for this one.
+        if (!string.IsNullOrWhiteSpace(stepName.Text) && stepName.Text.Trim() != $"step {sequence.Steps.Count + 1}")
             s.Name = stepName.Text.Trim();
         RefreshSteps();
         Status($"step {step + 1} overwritten");
@@ -2267,6 +3037,9 @@ public partial class PoseLab : Node3D
         pose = new Dictionary<string, float>(s.Values);
         stepName.Text = s.Name;
         stepTime.Value = s.Duration;
+        scrubbed = false;
+        SyncShortTurn();
+        SyncLock();
         SyncFields();
         Apply();
         syncing = true;
@@ -2294,6 +3067,7 @@ public partial class PoseLab : Node3D
         if (sequence.Steps.Count == 0)
             return;
         playTime = time;
+        scrubbed = true;
         pose = sequence.Sample(time, ease);
         SyncFields();
         Apply();
@@ -2328,6 +3102,7 @@ public partial class PoseLab : Node3D
     {
         if (powerText == null)
             return;
+        UpdateContact(); // the ball coming and the weight count in the contact card too
         float weight = (float)weightBox.Value, racketSpeed = (float)racketSpeedBox.Value, coming = (float)ballSpeedBox.Value;
         float angle = (float)angleBox.Value, spinIn = (float)spinBox.Value;
         bool down = brushDownBox.ButtonPressed;
@@ -2595,8 +3370,31 @@ public partial class PoseLab : Node3D
         }
     }
 
+    // The frame rate shown (fpsLabel): frames a second, and the lab's own work per frame (its
+    // _Process, the posing and drawing it does), averaged over half a second.
+    Label fpsLabel;
+    double fpsWindow, workMs;
+    int workFrames;
+    readonly System.Diagnostics.Stopwatch frameWork = new();
+
+    void ShowFps(double delta)
+    {
+        workMs += frameWork.Elapsed.TotalMilliseconds;
+        workFrames++;
+        if ((fpsWindow += delta / Mathf.Max(Engine.TimeScale, 1e-3)) < 0.5 || fpsLabel == null)
+            return;
+        double fps = Engine.GetFramesPerSecond(), work = workMs / workFrames;
+        fpsLabel.Text = $"{fps:F0} fps   ·   Pose Lab work {work:F1} ms a frame";
+        fpsLabel.AddThemeColorOverride("font_color", fps >= 50 ? new Color(0.6f, 0.95f, 0.6f) : fps >= 30 ? new Color(1f, 0.85f, 0.4f) : new Color(1f, 0.45f, 0.4f));
+        fpsWindow = workMs = 0;
+        workFrames = 0;
+    }
+
     public override void _Process(double delta)
     {
+        ShowFps(delta);
+        frameWork.Restart();
+        UpdateFocus();
         if (holdReader != null && holdStage >= 0)
             StepNaturalHolds();
         if (InGame && !open)
@@ -2638,6 +3436,7 @@ public partial class PoseLab : Node3D
 
         Vector3 offset = new Basis(Vector3.Up, viewYaw) * new Basis(Vector3.Right, -viewPitch) * new Vector3(0f, 0f, viewDistance);
         camera.GlobalTransform = new Transform3D(Basis.Identity, viewTarget + offset).LookingAt(viewTarget, Vector3.Up);
+        frameWork.Stop();
     }
 
     // ---------------------------------------------------------------- save / load
@@ -2721,6 +3520,7 @@ public partial class PoseLab : Node3D
             // A step 1 taken from a saved pose (the ready stance, or the precondition) stays
             // exactly as saved, so the motion joins on without a jump.
             bool savedStart = StrokeActions.UsesReady(a) && (StartName != "" || StrokeActions.SavedReady() != null);
+            posingOther = true;
             foreach (PoseSequence.Step s in sequence.Steps.Skip(savedStart ? 1 : 0))
             {
                 pose = new Dictionary<string, float>(s.Values);
@@ -2728,6 +3528,7 @@ public partial class PoseLab : Node3D
                 EaseWrist();
                 s.Values = new Dictionary<string, float>(pose);
             }
+            posingOther = false;
         }
         sequenceName.Text = saved != null ? file : a.Id;
         step = 0;

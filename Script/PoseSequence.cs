@@ -21,6 +21,90 @@ public class PoseSequence
         // none is normal). See FinishStyle.
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string Finish { get; set; }
+        // On the contact step: the spin the contact is shaped for ("none", "light" or "heavy"; not
+        // set: the path as made). See SpinLevel.
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string Spin { get; set; }
+        // On the contact step, once shaped for a spin: where the racket was in the steps before and
+        // after it (x, y, z each), to go back to the path as made.
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public float[] Unshaped { get; set; }
+        // How the racket turns on the move into this step: "short" as one turn the shortest way
+        // round (see TurnFace); none: each of its angles moves on its own.
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string Turn { get; set; }
+        // This step meets the ball (the Pose Lab's contact lock): it is the contact, and while it
+        // is edited the blade is kept on the ball (ball.x/y/z) whatever joint moves.
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool Meets { get; set; }
+        // On the contact step: which way the racket brushes the ball ("top", "back", "left",
+        // "right"; not set: the way the path goes). See Brush.
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string Brush { get; set; }
+        [JsonIgnore]
+        public bool ShortTurn
+        {
+            get => Turn == "short";
+            set => Turn = value ? "short" : null;
+        }
+    }
+
+    // The spin a contact is shaped for: how the racket's path meets the face at the ball (the
+    // move into the contact step, and on out of it), the contact point kept where it is.
+    //  - None: straight through the ball's middle, square to the face: all push, a "dead" ball;
+    //  - Light: half brush, half push;
+    //  - Heavy: a thin brush, nearly along the face: much spin, a slower ball.
+    // The kind (top, back or side) stays the way the path brushes: up, down or across.
+    public enum SpinLevel { AsShaped, None, Light, Heavy }
+
+    // Which way the racket brushes the ball at the contact, which sets the kind of spin: up the
+    // back of the ball (topspin), down and under it (backspin), or across it, to the player's left
+    // or right (sidespin); AsMade: the way the path goes.
+    public enum Brush { AsMade, Top, Back, SideLeft, SideRight }
+
+    [JsonIgnore]
+    public Brush ContactBrush
+    {
+        get => HasFinish ? Steps[ContactIndex].Brush switch
+        {
+            "top" => Brush.Top,
+            "back" => Brush.Back,
+            "left" => Brush.SideLeft,
+            "right" => Brush.SideRight,
+            _ => Brush.AsMade,
+        } : Brush.AsMade;
+        set
+        {
+            if (HasFinish)
+                Steps[ContactIndex].Brush = value switch
+                {
+                    Brush.Top => "top",
+                    Brush.Back => "back",
+                    Brush.SideLeft => "left",
+                    Brush.SideRight => "right",
+                    _ => null,
+                };
+        }
+    }
+
+    // The path's angle to the face for a level (degrees; 90 straight through the middle).
+    public static float BrushAngle(SpinLevel level) => level switch
+    {
+        SpinLevel.None => 90f,
+        SpinLevel.Light => 40f,
+        SpinLevel.Heavy => 10f,
+        _ => float.NaN,
+    };
+
+    [JsonIgnore]
+    public SpinLevel ContactSpin
+    {
+        get => HasFinish && System.Enum.TryParse(Steps[ContactIndex].Spin, true, out SpinLevel l) ? l : SpinLevel.AsShaped;
+        set
+        {
+            if (HasFinish)
+                Steps[ContactIndex].Spin = value == SpinLevel.AsShaped ? null : value.ToString().ToLowerInvariant();
+        }
     }
 
     // How the racket goes into and through the contact. The move into the contact step and the
@@ -39,9 +123,45 @@ public class PoseSequence
     public record Swing(FinishStyle Style, int Contact, float InDistance, float InTime, float ContactSpeed, float PeakSpeed,
                         float FinishDistance, float StopDistance, float StopTime);
 
-    // The contact step: the first named "contact...", with a step before it.
+    // The contact step: the one marked as meeting the ball (Step.Meets), else the first named
+    // "contact...", or in a serve (a ball shown at the start and
+    // tossed up) the step after the toss where the racket is nearest the ball, as the game finds
+    // it (ServeMotion).
     [JsonIgnore]
-    public int ContactIndex => Steps.FindIndex(s => s.Name.ToLowerInvariant().Contains("contact"));
+    public int ContactIndex
+    {
+        get
+        {
+            int locked = Steps.FindIndex(s => s.Meets);
+            if (locked >= 0)
+                return locked;
+            int named = Steps.FindIndex(s => s.Name.ToLowerInvariant().Contains("contact"));
+            return named >= 0 ? named : ServeContact();
+        }
+    }
+
+    int ServeContact()
+    {
+        static Vector3 BallOf(Step s) => new(s.Values.GetValueOrDefault("ball.x"), s.Values.GetValueOrDefault("ball.y"), s.Values.GetValueOrDefault("ball.z"));
+        bool Shown(int i) => Steps[i].Values.GetValueOrDefault("ball.show") > 0.5f;
+        if (Steps.Count < 3 || !Shown(0))
+            return -1;
+        int apex = -1;
+        for (int i = 1; i < Steps.Count - 1; i++)
+            if (Shown(i) && (apex < 0 || BallOf(Steps[i]).Y > BallOf(Steps[apex]).Y))
+                apex = i;
+        if (apex < 0 || BallOf(Steps[apex]).Y < BallOf(Steps[apex - 1]).Y + 0.05f)
+            return -1;
+        int contact = -1;
+        float nearest = float.MaxValue;
+        for (int i = apex + 1; i < Steps.Count; i++)
+        {
+            float d = RacketOf(Steps[i]).DistanceTo(BallOf(Steps[i]));
+            if (d < nearest)
+                (nearest, contact) = (d, i);
+        }
+        return contact;
+    }
 
     // Whether there is a contact step with a move into it and a step after it to finish on.
     [JsonIgnore]
@@ -157,13 +277,14 @@ public class PoseSequence
             if (t <= d || i == Steps.Count - 1)
             {
                 float f = d > 1e-5f ? Mathf.Clamp(t / d, 0f, 1f) : 1f;
+                bool shortTurn = Steps[i].ShortTurn;
                 if (swing != null && i == swing.Contact)
-                    return Blend(Steps[i - 1].Values, Steps[i].Values, IntoContact(swing.Style, f));
+                    return Blend(Steps[i - 1].Values, Steps[i].Values, IntoContact(swing.Style, f), shortTurn);
                 if (swing != null && i == swing.Contact + 1)
-                    return Blend(Steps[i - 1].Values, Steps[i].Values, ThroughFinish(swing, Mathf.Min(t, d)));
+                    return Blend(Steps[i - 1].Values, Steps[i].Values, ThroughFinish(swing, Mathf.Min(t, d)), shortTurn);
                 if (ease)
                     f = Mathf.SmoothStep(0f, 1f, f);
-                return Blend(Reached(i - 1, swing), Steps[i].Values, f);
+                return Blend(Reached(i - 1, swing), Steps[i].Values, f, shortTurn);
             }
             t -= d;
         }
@@ -184,7 +305,7 @@ public class PoseSequence
     Dictionary<string, float> Reached(int i, Swing swing)
     {
         if (swing != null && i == swing.Contact + 1 && swing.Style != FinishStyle.Normal && swing.FinishDistance > 1e-4f)
-            return Blend(Steps[i - 1].Values, Steps[i].Values, swing.StopDistance / swing.FinishDistance);
+            return Blend(Steps[i - 1].Values, Steps[i].Values, swing.StopDistance / swing.FinishDistance, Steps[i].ShortTurn);
         return new Dictionary<string, float>(Steps[i].Values);
     }
 
@@ -221,13 +342,17 @@ public class PoseSequence
     // Between a forehand and a backhand step the racket's angles are measured from different
     // holds (the face flips), so blending the numbers would twist the racket through poses no hand
     // makes, and flip it half way. Instead the racket turns the short way from the one step's
-    // place to the other's, and that is put in the angles of the side in use at the moment.
+    // place to the other's, and that is put in the angles of the side in use at the moment. The
+    // same for a move marked to (always: Step.Turn "short"), such as a serve's racket swinging
+    // round under the ball, whose angles each moving on their own would take the wrist round the
+    // long way.
     static void TurnFace(Dictionary<string, float> a, Dictionary<string, float> b, float f, Dictionary<string, float> pose, bool always = false)
     {
         if (!a.TryGetValue("racket.backhand", out float sideA) || !b.TryGetValue("racket.backhand", out float sideB)
             || (!always && (sideA < 0.5f) == (sideB < 0.5f)) || f <= 0f || f >= 1f)
             return;
-        Basis turned = RacketTurn(a, sideA < 0.5f).Slerp(RacketTurn(b, sideB < 0.5f), f);
+        Basis from = RacketTurn(a, sideA < 0.5f), to = RacketTurn(b, sideB < 0.5f);
+        Basis turned = from.Slerp(to, f);
         bool forehand = pose.GetValueOrDefault("racket.backhand") < 0.5f;
         float turn = pose.GetValueOrDefault("racket.turn");
         Vector3 angles = (Hold(forehand).Inverse() * new Basis(Vector3.Up, -Mathf.DegToRad(turn)) * turned)

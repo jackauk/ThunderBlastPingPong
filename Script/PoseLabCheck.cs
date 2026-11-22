@@ -24,6 +24,7 @@ public partial class PoseLab
         while (gamePose == null)
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         mode = Mode.Carry;
+        posingOther = true; // every step and moment is posed in turn: none is being edited
 
         var log = new List<string> { $"Pose check {Time.GetDatetimeStringFromSystem()} ({(fix ? "fix" : "report only")})", "" };
         int problems = 0, warnings = 0, fixedSteps = 0;
@@ -35,7 +36,7 @@ public partial class PoseLab
             if (s == null)
                 continue;
             Findings found = CheckSequence(s);
-            if (fix && found.Fixable.Count > 0)
+            if (fix && (found.Fixable.Count > 0 || found.TwistedMoves.Count > 0))
             {
                 int done = FixSequence(s, found.Fixable, log, name);
                 fixedSteps += done;
@@ -65,6 +66,12 @@ public partial class PoseLab
             log.AddRange(found.Lines.Select(l => "    " + l));
             if (fix && found.Fixable.Count > 0)
                 SuggestForTemplate(s, found.Fixable, log, a.Id);
+            if (fix && found.TwistedMoves.Count > 0)
+            {
+                var said = new List<string>();
+                if (FixTwistedMoves(s, found.TwistedMoves, said) > 0)
+                    log.AddRange(said.Select(l => "    suggested:" + l.TrimStart().Insert(0, " ")));
+            }
         }
         string summary = $"POSECHECK done: {problems} problem(s), {warnings} warning(s){(fix ? $", {fixedSteps} step(s) fixed" : "")}";
         log.Insert(1, summary);
@@ -81,6 +88,7 @@ public partial class PoseLab
     {
         public readonly List<string> Lines = new();
         public readonly HashSet<int> Fixable = new();   // steps with something FixSequence can put right
+        public readonly HashSet<int> TwistedMoves = new(); // moves (into step i) where the wrist goes past its range
         public int Problems, Warnings;
         public string Summary => Problems + Warnings == 0 ? "ok" : $"{Problems} problem(s), {Warnings} warning(s)";
     }
@@ -117,6 +125,8 @@ public partial class PoseLab
             Apply();
             foreach (PoseCheck.Issue issue in RunPoseCheck(false).Where(x => x.Serious && x.Kind is not PoseCheck.Kind.Balance))
             {
+                if (issue.Kind == PoseCheck.Kind.Wrist)
+                    f.TwistedMoves.Add(MoveAt(s, t));
                 string key = issue.Text.Split(' ')[0] + " " + issue.Kind;
                 spans[key] = spans.TryGetValue(key, out var sp) ? (sp.From, t, Mathf.Max(sp.Worst, issue.Amount)) : (t, t, issue.Amount);
             }
@@ -129,6 +139,54 @@ public partial class PoseLab
         return f;
     }
 
+    // The move (into step i) playing at time t.
+    static int MoveAt(PoseSequence s, float t)
+    {
+        int at = 1;
+        for (int i = 1; i < s.Steps.Count; i++)
+            if (t > s.StartOf(i - 1) + 1e-4f)
+                at = i;
+        return at;
+    }
+
+    // The worst the wrist goes past its range on the move into step i (degrees; 0 within it).
+    float WristPastOn(PoseSequence s, int i)
+    {
+        float worst = 0f;
+        for (float t = s.StartOf(i - 1); t <= s.StartOf(i) + 1e-4f; t += 0.01f)
+        {
+            pose = s.Sample(t, true);
+            Apply();
+            foreach (PoseCheck.Issue issue in RunPoseCheck(false).Where(x => x.Serious && x.Kind == PoseCheck.Kind.Wrist))
+                worst = Mathf.Max(worst, issue.Amount);
+        }
+        return worst;
+    }
+
+    // Moves whose wrist goes past its range: the racket turned the short way round instead (one
+    // turn rather than each angle on its own, Step.Turn), kept where that takes the wrist past it
+    // less or not at all. Returns the moves changed.
+    int FixTwistedMoves(PoseSequence s, IEnumerable<int> moves, List<string> log)
+    {
+        int changed = 0;
+        foreach (int i in moves.OrderBy(i => i))
+        {
+            if (s.Steps[i].ShortTurn)
+                continue;
+            float before = WristPastOn(s, i);
+            s.Steps[i].ShortTurn = true;
+            float after = WristPastOn(s, i);
+            if (after < before - 0.5f)
+            {
+                changed++;
+                log.Add($"    move into step {i + 1} \"{s.Steps[i].Name}\": the racket turns the short way round (wrist {before:F0}° past its range -> {(after <= 0f ? "within it" : $"{after:F0}° past")})");
+            }
+            else
+                s.Steps[i].ShortTurn = false;
+        }
+        return changed;
+    }
+
     // Puts a saved motion's steps right where that is safe; the old motion is kept first.
     // Returns how many steps changed.
     int FixSequence(PoseSequence s, HashSet<int> steps, List<string> log, string name)
@@ -137,6 +195,8 @@ public partial class PoseLab
         System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(backup));
         System.IO.File.Copy(PoseSequence.PathOf(name), backup, true);
         int changed = FixSteps(s, steps, log, name);
+        Findings now = CheckSequence(s);
+        changed += FixTwistedMoves(s, now.TwistedMoves, log);
         if (changed > 0)
             s.Save();
         log.Add($"{name}: old motion kept as {backup}");

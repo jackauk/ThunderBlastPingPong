@@ -4,7 +4,9 @@
   ],
   "serve": [
     "forehand_serve1",
-    "forehand_serve_malong1"
+    "forehand_serve_malong1",
+    "forehand_serve_malong2",
+    "forehand_serve_malong3"
   ],
   "bh_push.first": [
     "move_in_short_left"
