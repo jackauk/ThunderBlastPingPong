@@ -3,7 +3,8 @@
     "ready_normal"
   ],
   "serve": [
-    "forehand_serve1"
+    "forehand_serve1",
+    "forehand_serve_malong1"
   ],
   "bh_push.first": [
     "move_in_short_left"
