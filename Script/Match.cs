@@ -94,7 +94,9 @@ public partial class Match : Node3D
         ball.Struck += OnStruck;
 
         Input.MouseMode = Input.MouseModeEnum.Hidden;
-        SetMode(System.Array.Exists(OS.GetCmdlineUserArgs(), arg => arg == "--npc-vs-npc"));
+        // NPC vs NPC: asked on the command line, or to play a strategy from the Pose Lab's map.
+        SetMode(System.Array.Exists(OS.GetCmdlineUserArgs(), arg => arg == "--npc-vs-npc") || StrategyRun.StartNpcMatch);
+        StrategyRun.StartNpcMatch = false;
         NewGame();
 
         // F2: freeze the match and pose the NPC (Pose Lab).
@@ -220,12 +222,24 @@ public partial class Match : Node3D
         {
             RacketLocker.Open(GetTree()); // the racket collection
         }
+        else if (e is InputEventKey { Pressed: true, Echo: false, Keycode: Key.F4 })
+        {
+            StrategyMap.Open(GetTree(), this); // rallies planned from above
+        }
         else if (e is InputEventKey { Pressed: true, Keycode: Key.Escape })
         {
             Input.MouseMode = Input.MouseMode == Input.MouseModeEnum.Hidden
                 ? Input.MouseModeEnum.Visible
                 : Input.MouseModeEnum.Hidden;
         }
+    }
+
+    // A strategy from the map played from a new game: by both NPCs, or by the CPU against you.
+    public void PlayStrategy(bool npcVsNpc)
+    {
+        SetMode(npcVsNpc);
+        NewGame();
+        DebugOverlay.Log($"=== strategy {StrategyRun.Active?.Name}: {StrategyRun.Active?.Shots.Count} shots ===");
     }
 
     // Puts the player's blade or the near NPC at the near end.
@@ -253,9 +267,10 @@ public partial class Match : Node3D
 
     void UpdateHint()
     {
-        hintLabel.Text = npcMatch
+        string plan = StrategyRun.Active != null ? $"Strategy: {StrategyRun.Active.Name}  |  " : "";
+        hintLabel.Text = plan + (npcMatch
             ? $"NPC vs NPC  |  M: slow motion ({SlowModes[slowMode].Name})  |  N: play against the CPU yourself  |  F2: freeze and pose  |  F3: rackets  |  Ball glow: orange = topspin, blue = backspin"
-            : playerHint + "  |  N: NPC vs NPC  |  F2: freeze and pose  |  F3: rackets";
+            : playerHint + "  |  N: NPC vs NPC  |  F2: freeze and pose  |  F3: rackets") + "  |  F4: strategy map";
     }
 
     void NewGame()
@@ -273,6 +288,9 @@ public partial class Match : Node3D
     // from 10:10, and the first server alternates from game to game.
     Opponent NextServer()
     {
+        // A strategy being played: its server serves every point (A the far end).
+        if (StrategyRun.Active is { } plan)
+            return plan.Server == "B" && npcMatch ? nearOpponent : opponent;
         if (!npcMatch)
             return opponent;
         int played = playerScore + opponentScore;
@@ -287,6 +305,8 @@ public partial class Match : Node3D
         phase = Phase.Serving;
         timer = ServeDelay;
         server = NextServer();
+        StrategyRun.Struck = 0; // a strategy starts again with each serve
+        UpdateHint();
         opponent.HasServe = server == opponent;
         nearOpponent.HasServe = server == nearOpponent;
         opponent.Reset();
@@ -311,6 +331,7 @@ public partial class Match : Node3D
         isServe = phase == Phase.Toss;
         phase = Phase.Rally;
         lastHitter = side;
+        StrategyRun.Struck++; // the next shot of the strategy is the next one
         bounces = 0;
         touchedNet = false;
         timer = 0f;

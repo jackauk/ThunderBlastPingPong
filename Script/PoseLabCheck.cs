@@ -243,7 +243,7 @@ public partial class PoseLab
                 {
                     case PoseCheck.Kind.Wrist:
                         EaseWrist();
-                        if (WristBend() > PoseCheck.WristMost)
+                        if (WristPast() > 0f)
                             TurnNoseForWrist();
                         did.Add("wrist eased");
                         break;

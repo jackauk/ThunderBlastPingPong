@@ -1056,6 +1056,8 @@ public partial class PoseLab : Node3D
         ball.GlobalPosition = W(BallAt);
         ball.Visible = V("ball.show") > 0.5f || ContactLocked; // the ball it meets, shown while the step is edited
 
+        if (fitting)
+            return; // trying poses for a fit from a video: the markers, checks and drawing wait
         for (int i = 0; i < Parts.Length; i++)
         {
             markers[i].GlobalPosition = MarkerAt(i);
@@ -1479,8 +1481,9 @@ public partial class PoseLab : Node3D
 
         lines.Add($"right elbow {Inner(rightShoulder, rightArm.ElbowPoint, rightWrist):F0}°   left elbow {Inner(leftShoulder, leftArm.ElbowPoint, leftHand):F0}°  (180 = straight)");
         lines.Add($"left knee {Inner(legs[0].HipPoint, legs[0].KneePoint, legs[0].AnklePoint):F0}°   right knee {Inner(legs[1].HipPoint, legs[1].KneePoint, legs[1].AnklePoint):F0}°");
-        float wrist = WristBend();
-        lines.Add($"right wrist bent {wrist:F0}° off the grip's line");
+        // The wrist, as the check measures it: off the grip's line, and which way.
+        var (wristBend, palmward) = paddle.WristOffGrip(rightArm.ElbowPoint, Forehand);
+        lines.Add($"right wrist bent {wristBend:F0}° off the grip's line, {PoseCheck.WristWay(palmward)} (goes about {PoseCheck.WristRange(palmward):F0}° that way)");
         lines.Add($"centre of gravity {O(CentreOfGravity()).Y:F2} m high (red ball; - / + lower / raise)");
 
         lines.AddRange(atFullReach);
@@ -1683,7 +1686,11 @@ public partial class PoseLab : Node3D
         actionButtons.AddChild(MakeButton("Method table…", () => methodTable.PopupCentered()));
         // The racket collection: equip the player and the NPCs.
         actionButtons.AddChild(MakeButton("Rackets…", () => RacketLocker.Open(GetTree())));
+        // Rallies planned from above, for the NPCs to play.
+        actionButtons.AddChild(MakeButton("Strategy map…", () => StrategyMap.Open(GetTree(), GetParent() as Match)));
         box.AddChild(actionButtons);
+        // A stroke read from a video of a player (Tools/video2motion.py, PoseLabVideo).
+        BuildVideoImport(box);
         actionNotes = Small("");
         actionNotes.AddThemeColorOverride("font_color", new Color(0.8f, 0.85f, 0.95f));
         box.AddChild(actionNotes);
@@ -3394,6 +3401,7 @@ public partial class PoseLab : Node3D
     {
         ShowFps(delta);
         frameWork.Restart();
+        CheckVideoRun();
         UpdateFocus();
         if (holdReader != null && holdStage >= 0)
             StepNaturalHolds();
@@ -3456,6 +3464,7 @@ public partial class PoseLab : Node3D
         RefreshSaved();
         Status($"saved {sequence.Steps.Count} steps to res://Poses/{name}.json");
     }
+
 
     void Load()
     {
@@ -3541,11 +3550,15 @@ public partial class PoseLab : Node3D
     }
 
     // How far the racket hand's wrist is bent off the grip's natural line (degrees).
-    float WristBend()
+
+    float WristBend() => paddle.WristOffGrip(rightArm.ElbowPoint, Forehand).Bend;
+
+
+    // How far the wrist is past its range that way (degrees; 0 or less: within it).
+    float WristPast()
     {
-        Vector3 forearm = (rightArm.ElbowPoint - rightWrist).Normalized();
-        Vector3 gripLine = (paddle.GlobalBasis * GripForearm).Normalized();
-        return Mathf.RadToDeg(forearm.AngleTo(gripLine));
+        var (bend, palmward) = paddle.WristOffGrip(rightArm.ElbowPoint, Forehand);
+        return bend - PoseCheck.WristRange(palmward);
     }
 
     // Turns the chest at the waist and the hand about the vertical (the racket staying where it

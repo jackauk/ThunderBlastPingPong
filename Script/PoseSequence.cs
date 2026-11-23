@@ -380,8 +380,10 @@ public class PoseSequence
                 * new Basis(Vector3.Right, side * R("racket.noseForward"))).Orthonormalized();
     }
 
-    // Turns that go all the way round (-180..180): 170 to -170 is 20 degrees, not 340.
-    static readonly HashSet<string> Wrapping = new() { "hips.turn", "lfoot.turn", "rfoot.turn" };
+    // Turns that go all the way round (-180..180): 170 to -170 is 20 degrees, not 340. The
+    // racket's turns too (the forearm's, the wrist's nose forward, the whole hand's): -129 and
+    // 178 are the same racket 53 degrees apart, which taken the long way spun it nearly round.
+    static readonly HashSet<string> Wrapping = new() { "hips.turn", "lfoot.turn", "rfoot.turn", "racket.open", "racket.noseForward", "racket.turn" };
 
     static readonly JsonSerializerOptions Json = new() { WriteIndented = true };
 

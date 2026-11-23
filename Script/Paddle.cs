@@ -446,6 +446,28 @@ public partial class Paddle : Node3D
         float s = forehand ? 0f : 1f;
         return new Basis(Vector3.Back, Mathf.Lerp(-1.5f, 1.5f, s)) * new Basis(Vector3.Up, s * Mathf.Pi);
     }
+
+    // The hand's palm, out of it (world): for the shakehand hand (null for the penhold's).
+    public Vector3? PalmOut() =>
+        Grip == GripStyle.Penhold ? null : (GlobalBasis.Orthonormalized() * new Vector3(0f, 0.12f, -1f)).Normalized();
+
+    // How far the wrist is bent off the grip's line (degrees: the forearm against NaturalForearm),
+    // and how much of it is towards the palm (1 all of it, -1 all back, 0 sideways). On that line
+    // the wrist is already bent back about 25° (a shakehand grip's ready wrist), so it has far more
+    // room towards the palm than back or sideways.
+    public (float Bend, float Palmward) WristOffGrip(Vector3 elbow, bool forehand)
+    {
+        Vector3 forearm = (elbow - GlobalTransform * WristLocal).Normalized();
+        Vector3 line = (GlobalBasis * NaturalForearm(forehand)).Normalized();
+        float bend = Mathf.RadToDeg(forearm.AngleTo(line));
+        Vector3 off = forearm - line * forearm.Dot(line);
+        if (PalmOut() is not Vector3 palm || off.LengthSquared() < 1e-8f)
+            return (bend, 0f);
+        // Bent towards the palm, the forearm comes round to the palm's side of the hand.
+        Vector3 palmSide = palm - line * palm.Dot(line);
+        return (bend, palmSide.LengthSquared() < 1e-8f ? 0f : off.Normalized().Dot(palmSide.Normalized()));
+    }
+
     // The forearm's line from the wrist in that hold (paddle space): ForearmLocal at rest.
     public Vector3 NaturalForearm(bool forehand) => (forehand ? Hand.ForearmForehand : Hand.ForearmBackhand).Normalized();
 

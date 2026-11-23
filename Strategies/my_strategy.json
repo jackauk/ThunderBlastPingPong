@@ -1,0 +1,43 @@
+{
+  "Name": "my_strategy",
+  "Server": "A",
+  "ServerX": 0.25,
+  "Shots": [
+    {
+      "Method": "serve",
+      "Action": null,
+      "LandX": -0.35,
+      "LandZ": 0.45,
+      "Spin": "back",
+      "Amount": "heavy",
+      "Pace": "slow"
+    },
+    {
+      "Method": "fh_push",
+      "Action": null,
+      "LandX": 0.7016272,
+      "LandZ": -1.228994,
+      "Spin": "back",
+      "Amount": "light",
+      "Pace": "medium"
+    },
+    {
+      "Method": "fh_drive",
+      "Action": null,
+      "LandX": 0.6282544,
+      "LandZ": 0.9813609,
+      "Spin": "top",
+      "Amount": "heavy",
+      "Pace": "fast"
+    },
+    {
+      "Method": "fh_drive",
+      "Action": null,
+      "LandX": -0.50260353,
+      "LandZ": -0.9,
+      "Spin": "top",
+      "Amount": "light",
+      "Pace": "medium"
+    }
+  ]
+}

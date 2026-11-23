@@ -327,6 +327,7 @@ public partial class Opponent : Node3D, IBallHitter
             topspinServe = !serveMotion.Underspin;
             serveSpin = serveMotion.Spin;
             serveBrush = serveMotion.Brush;
+            PlanServe();
             BallState atContact = serveMotion.Flight(tossVelocity, serveMotion.ContactAt - serveMotion.TossAt);
             Serve(TargetBall, serveMotion.Name, atContact);
         }
@@ -436,7 +437,7 @@ public partial class Opponent : Node3D, IBallHitter
                 if (readEta < 0f)
                     readEta = interceptEta;
                 bladeTarget = intercept + misread * ReadShare(interceptEta);
-                plannedStroke ??= ChooseStroke(arriving);
+                plannedStroke ??= StrategyRun.For(Side) is { } planned ? Strategy.StyleOf(planned.Method) : ChooseStroke(arriving);
                 paddle.Style = plannedStroke.Value;
             }
             else
@@ -771,6 +772,20 @@ public partial class Opponent : Node3D, IBallHitter
             aim = new Vector2((GD.Randf() < 0.5f ? -1f : 1f) * (float)GD.RandRange(0.45, 0.62), (float)GD.RandRange(1.0, 1.2));
         }
         var racket = new Vector3((float)GD.RandRange(-0.8, 0.8) * Mathf.Max(drive / 4f, 1f), brush, drive);
+        // A strategy's shot: its method's stroke, at its pace and spin, to its spot.
+        Strategy.Shot plannedShot = StrategyRun.For(Side);
+        if (plannedShot != null && plannedShot.Method != "serve")
+        {
+            stroke = Strategy.StyleOf(plannedShot.Method);
+            attack = false;
+            aim = PlannedAim(plannedShot);
+            racket = PlannedRacket(plannedShot, stroke);
+            // Out of reach at this pace (a soft push to a deep spot): drive through it harder, a
+            // little at a time, until some face angle sends it there.
+            for (int harder = 0; harder < 8 && !ShotSolver.TrySolveFace(seen, racket, OwnSide, aim, 1, out _, Hitter); harder++)
+                racket.Z += 0.5f;
+            DebugOverlay.Log($"  {Tag} plays shot {StrategyRun.Struck + 1} of the strategy: {StrategyRun.Describe(plannedShot, Side == -1 ? "A" : "B")}");
+        }
 
         // The waist turning swings the chest, and with it the arm and racket, round the spine:
         // racket speed the arm and shoulder do not have to make. With it the stroke comes out a
@@ -893,6 +908,7 @@ public partial class Opponent : Node3D, IBallHitter
         topspinServe = GD.Randf() < 0.5f;
         serveSpin = PoseSequence.SpinLevel.AsShaped; // its own serve: its own mix
         serveBrush = PoseSequence.Brush.AsMade;
+        PlanServe();
         paddle.ChooseSide(1f);
         paddle.Style = topspinServe ? StrokeStyle.Drive : StrokeStyle.Push;
     }
@@ -941,11 +957,11 @@ public partial class Opponent : Node3D, IBallHitter
             // Ball travels +Z: positive X spin is topspin, negative is backspin.
             Vector3 wanted;
             Vector2 aim;
-            float pace = (float)GD.RandRange(3.2, 5.0);
+            float pace = plannedServe != null ? PlannedPace(plannedServe) : (float)GD.RandRange(3.2, 5.0);
             if (topspinServe)
             {
                 wanted = new Vector3(Human.ServeSpin(Skill) * Mathf.Tau * ServeSpinShare(0.5, 1.1), (float)GD.RandRange(-150.0, 150.0) * SideShare(), 0f);
-                aim = new Vector2((float)GD.RandRange(-0.5, 0.5), (float)GD.RandRange(0.6, 1.1));
+                aim = plannedServe != null ? PlannedAim(plannedServe) : new Vector2((float)GD.RandRange(-0.5, 0.5), (float)GD.RandRange(0.6, 1.1));
             }
             else
             {
@@ -959,7 +975,7 @@ public partial class Opponent : Node3D, IBallHitter
                 // ball about - Y, to the right about + Y), with a little backspin under it.
                 if (serveBrush is PoseSequence.Brush.SideLeft or PoseSequence.Brush.SideRight)
                     wanted = new Vector3(-backspin * 0.35f, (serveBrush == PoseSequence.Brush.SideLeft ? -1f : 1f) * backspin, 0f);
-                aim = new Vector2((float)GD.RandRange(-0.45, 0.45), (float)GD.RandRange(0.35, 0.6));
+                aim = plannedServe != null ? PlannedAim(plannedServe) : new Vector2((float)GD.RandRange(-0.45, 0.45), (float)GD.RandRange(0.35, 0.6));
             }
 
             // Friction can only spin the ball about axes across its change of velocity, so settle
@@ -1012,6 +1028,74 @@ public partial class Opponent : Node3D, IBallHitter
             ? $"  {Tag} plain serve (no brushed serve worked)"
             : $"  {Tag} no legal serve from the contact at ({toss.Position.X:F2}, {toss.Position.Y:F2}, {toss.Position.Z:F2}): "
               + $"{(toss.Position.Y - TableSpec.Height) * 100f:F0} cm above the table, {(-TableSpec.HalfLength - toss.Position.Z) * 100f:F0} cm behind the end line; the ball is popped over");
+    }
+
+    // ---------------------------------------------------------------- a strategy (StrategyRun)
+
+    Strategy.Shot plannedServe; // the strategy's serve, when it is this NPC's
+
+    // The strategy's serve, when this NPC has it: its spin (topspin or backspin, sidespin brushed
+    // across), how much, where it lands and its pace, in place of the NPC's own choice.
+    void PlanServe()
+    {
+        plannedServe = StrategyRun.For(Side) is { Method: "serve" } shot ? shot : null;
+        if (plannedServe == null)
+            return;
+        topspinServe = plannedServe.Spin == "top";
+        serveSpin = plannedServe.Spin == "none" ? PoseSequence.SpinLevel.None : plannedServe.Amount switch
+        {
+            "none" => PoseSequence.SpinLevel.None,
+            "heavy" => PoseSequence.SpinLevel.Heavy,
+            _ => PoseSequence.SpinLevel.Light,
+        };
+        serveBrush = plannedServe.Spin switch
+        {
+            "sideleft" => PoseSequence.Brush.SideLeft,
+            "sideright" => PoseSequence.Brush.SideRight,
+            _ => PoseSequence.Brush.AsMade,
+        };
+        if (serveBrush != PoseSequence.Brush.AsMade)
+            topspinServe = false; // sidespin is served with a little backspin under it
+        DebugOverlay.Log($"  {Tag} serves as the strategy says: {StrategyRun.Describe(plannedServe, Side == -1 ? "A" : "B")}");
+    }
+
+    // A planned spot (the table's x, z) as this NPC aims: in its own frame, on the far half.
+    Vector2 PlannedAim(Strategy.Shot shot)
+    {
+        Vector3 own = Own(new Vector3(shot.LandX, TableSpec.Height, shot.LandZ));
+        return new Vector2(own.X, own.Z);
+    }
+
+    static float PlannedPace(Strategy.Shot shot) => shot.Pace switch { "slow" => 3.4f, "fast" => 5.2f, _ => 4.2f };
+
+    // The racket's motion (own frame: across, up, forward) for a planned shot: the method's own
+    // speed (a block 1.3 m/s, a push 2, a chop 3, a flick 4.5, a drive as players of this level
+    // swing it, a smash all out), slower or faster for its pace (x0.7, x1.3); brushing the more the
+    // more spin it asks (none nearly straight through, heavy mostly brush): up the ball for
+    // topspin, down under it for backspin, across it for sidespin (to the left: + x).
+    Vector3 PlannedRacket(Strategy.Shot shot, StrokeStyle stroke)
+    {
+        float usual = shot.Method switch
+        {
+            "fh_block" or "bh_block" => 1.3f,
+            "fh_push" or "bh_push" => 2f,
+            "fh_chop" or "bh_chop" => 3f,
+            "fh_flick" or "bh_flick" => 4.5f,
+            "smash" => Human.SmashRacketSpeed(Skill),
+            _ => Human.DriveRacketSpeed(Skill) * (paddle.Forehand ? 1f : 0.88f),
+        };
+        float speed = usual * fatigue.SwingFactor * (shot.Pace switch { "slow" => 0.7f, "fast" => 1.3f, _ => 1f });
+        float ratio = shot.Spin == "none" ? 0.12f : shot.Amount switch { "none" => 0.12f, "heavy" => 1.6f, _ => 0.7f };
+        float a = Mathf.Atan(ratio);
+        float drive = speed * Mathf.Cos(a), brush = speed * Mathf.Sin(a);
+        return shot.Spin switch
+        {
+            "back" => new Vector3(0f, -brush, drive),
+            "sideleft" => new Vector3(brush, 0.2f * brush, drive),
+            "sideright" => new Vector3(-brush, 0.2f * brush, drive),
+            "none" => new Vector3(0f, brush, drive),
+            _ => new Vector3(0f, brush, drive),
+        };
     }
 
     // The share of the player's full serve spin (Human.ServeSpin) asked for: the motion's level, or

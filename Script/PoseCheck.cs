@@ -1,4 +1,5 @@
 using Godot;
+using System.Linq;
 using System.Collections.Generic;
 
 // Checks a body's pose for what a person cannot do, read off the body itself (the joints the
@@ -20,7 +21,16 @@ public static class PoseCheck
     // Inner angles (180 = straight): an elbow bends to about 145° of flexion, a knee to about 140°.
     public const float ElbowMostBent = 35f;
     public const float KneeMostBent = 40f;
-    public const float WristMost = 70f;        // off the grip's line (as the Pose Lab)
+    // The wrist off the grip's line (Paddle.WristOffGrip): about 70° back or sideways, but about 110°
+    // towards the palm (the grip's line has it bent back already; a wrist flexes to about 80°).
+    public const float WristMost = 70f;
+    public const float WristPalmMost = 110f;
+
+    public static float WristRange(float palmward) =>
+        WristMost + (WristPalmMost - WristMost) * Mathf.Max(palmward, 0f) * Mathf.Max(palmward, 0f);
+
+    public static string WristWay(float palmward) =>
+        palmward > 0.7f ? "towards the palm" : palmward < -0.7f ? "back" : "sideways";
     public const float WaistMost = 60f;        // chest turned from the hips
     public const float LeanForwardMost = 65f;  // trunk from upright
     public const float LeanBackMost = 20f;
@@ -66,13 +76,11 @@ public static class PoseCheck
                 issues.Add(new(Kind.Knee, $"{(i == 0 ? "left" : "right")} knee bent to {knee:F0}° (it bends to about {KneeMostBent:F0}°)", true, KneeMostBent - knee));
         }
 
-        // The wrist: the forearm against the line the grip holds it on.
-        Vector3 wrist = b.Paddle.GlobalTransform * b.Paddle.WristLocal;
-        Vector3 forearm = (b.RightArm.ElbowPoint - wrist).Normalized();
-        Vector3 gripLine = (b.Paddle.GlobalBasis * b.Paddle.NaturalForearm(forehand)).Normalized();
-        float bend = Mathf.RadToDeg(forearm.AngleTo(gripLine));
-        if (bend > WristMost)
-            issues.Add(new(Kind.Wrist, $"wrist bent {bend:F0}° off the grip's line (a wrist does about {WristMost:F0}°)", true, bend - WristMost));
+        // The wrist: the forearm off the line the grip holds it on, as far as a wrist goes that way.
+        var (bend, palmward) = b.Paddle.WristOffGrip(b.RightArm.ElbowPoint, forehand);
+        float range = WristRange(palmward);
+        if (bend > range)
+            issues.Add(new(Kind.Wrist, $"wrist bent {bend:F0}° off the grip's line, {WristWay(palmward)} (a wrist goes about {range:F0}° that way)", true, bend - range));
 
         // The waist: the chest's facing against the hips', about the vertical.
         Vector3 Flat(Vector3 v) => new Vector3(v.X, 0f, v.Z).Normalized();
