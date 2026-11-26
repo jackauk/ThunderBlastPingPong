@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# A table tennis player's strokes from a video, for the Pose Lab's "Import video..." (see
+# A video made ready for the Pose Lab's Video window, and the joints of the frames picked there (see
 # Tools/video2motion.py). Sets up its Python (3.12, MediaPipe, OpenCV) and pose model on first use.
-#   Tools/video2motion.sh <video> [--pick auto|near|far|left|right] [--start s] [--end s] [--left-handed] [--out file.json]
+#   Tools/video2motion.sh <video> --out <folder>/<name> [--left-handed]   (or --serve: the joints of frames asked for)
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 py="$here/.venv/Scripts/python.exe"

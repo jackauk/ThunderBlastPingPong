@@ -298,6 +298,8 @@ public partial class PoseLab : Node3D
                 captureFolder = arg["--capture=".Length..];
             if (arg.StartsWith("--actions="))
                 actionsFolder = arg["--actions=".Length..];
+            if (arg.StartsWith("--video-capture="))
+                videoCapture = arg["--video-capture=".Length..];
         }
 
         if (InGame)
@@ -333,6 +335,8 @@ public partial class PoseLab : Node3D
                 CaptureExample();
             else if (actionsFolder != null)
                 CaptureActions();
+            else if (videoCapture != null)
+                CaptureVideoWindow(videoCapture);
         }
     }
 
@@ -718,6 +722,8 @@ public partial class PoseLab : Node3D
 
     void Close()
     {
+        if (videoWindow != null && IsInstanceValid(videoWindow))
+            videoWindow.Hide(); // back to the game: the Video window with the lab
         playing = false;
         playButton.Text = "▶ Play";
         dragging = false;
@@ -3699,6 +3705,8 @@ public partial class PoseLab : Node3D
             if (!open)
                 return;
         }
+        if (ForVideoWindow(e))
+            return; // the Video window's (over it, or it has the keys): not the lab's behind it
         switch (e)
         {
             case InputEventMouseButton { ButtonIndex: MouseButton.WheelUp, Pressed: true }:

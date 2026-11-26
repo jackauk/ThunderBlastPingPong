@@ -41,6 +41,10 @@ public class PoseSequence
         // "right"; not set: the way the path goes). See Brush.
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string Brush { get; set; }
+        // Made from a video's moment (the Pose Lab's "Import video..."): "<video>#<stroke>/<moment>",
+        // the video's reading kept in user://video/<video>.strokes.json, with the frame.
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string Video { get; set; }
         [JsonIgnore]
         public bool ShortTurn
         {
